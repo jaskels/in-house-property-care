@@ -1,16 +1,16 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>In House Property Care</title>
-    <meta
-      name="description"
-      content="Premium, friendly, trustworthy property care with instant estimates and service requests."
-    />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="./src/main.jsx"></script>
-  </body>
-</html>
+# In House Property Care
+
+Starter React + Vite site for Netlify.
+
+## Local development
+1. npm install
+2. npm run dev
+
+## Build
+npm run build
+
+## Notes
+- Replace /public/logo.png with the final logo you want to use.
+- Update phone and email links in src/App.jsx.
+- This first version is a polished starter with estimate logic built in.
+- Netlify form/email hookup can be added next after the base site is live.
