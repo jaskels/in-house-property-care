@@ -1,7 +1,7 @@
 # In House Property Care
 
-Cleaner header update:
-- top buttons removed completely
-- header simplified
-- pricing reduced 5%
-- line-item emails kept
+SEO update package:
+- adds sitemap.xml
+- adds robots.txt
+- adds canonical, social, and structured-data metadata
+- ready for Google Search Console sitemap submission
