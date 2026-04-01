@@ -7,32 +7,28 @@ const PHONE_LINK = '8018980281'
 const PUBLIC_EMAIL = 'ihiutah@gmail.com'
 
 const sizeRanges = [
-  { value: '0.10', label: 'Up to 0.10 acre', weeklyMulch: 55, weeklyBagLeave: 65, biweeklyMulch: 70, biweeklyBagLeave: 80 },
-  { value: '0.25', label: '0.11 to 0.25 acre', weeklyMulch: 65, weeklyBagLeave: 75, biweeklyMulch: 85, biweeklyBagLeave: 95 },
-  { value: '0.50', label: '0.26 to 0.50 acre', weeklyMulch: 85, weeklyBagLeave: 95, biweeklyMulch: 110, biweeklyBagLeave: 120 },
-  { value: '0.75', label: '0.51 to 0.75 acre', weeklyMulch: 110, weeklyBagLeave: 120, biweeklyMulch: 140, biweeklyBagLeave: 150 },
-  { value: '1.00', label: '0.76 to 1.00 acre', weeklyMulch: 135, weeklyBagLeave: 145, biweeklyMulch: 170, biweeklyBagLeave: 180 },
-  { value: '1.50', label: '1.01 to 1.50 acres', weeklyMulch: 175, weeklyBagLeave: 190, biweeklyMulch: 220, biweeklyBagLeave: 235 },
-  { value: '2.00', label: '1.51 to 2.00 acres', weeklyMulch: 225, weeklyBagLeave: 245, biweeklyMulch: 285, biweeklyBagLeave: 305 }
+  { value: '0.10', label: 'Up to 0.10 acre', weeklyMulch: 52.25, weeklyBagLeave: 61.75, biweeklyMulch: 66.50, biweeklyBagLeave: 76.00 },
+  { value: '0.25', label: '0.11 to 0.25 acre', weeklyMulch: 61.75, weeklyBagLeave: 71.25, biweeklyMulch: 80.75, biweeklyBagLeave: 90.25 },
+  { value: '0.50', label: '0.26 to 0.50 acre', weeklyMulch: 80.75, weeklyBagLeave: 90.25, biweeklyMulch: 104.50, biweeklyBagLeave: 114.00 },
+  { value: '0.75', label: '0.51 to 0.75 acre', weeklyMulch: 104.50, weeklyBagLeave: 114.00, biweeklyMulch: 133.00, biweeklyBagLeave: 142.50 },
+  { value: '1.00', label: '0.76 to 1.00 acre', weeklyMulch: 128.25, weeklyBagLeave: 137.75, biweeklyMulch: 161.50, biweeklyBagLeave: 171.00 },
+  { value: '1.50', label: '1.01 to 1.50 acres', weeklyMulch: 166.25, weeklyBagLeave: 180.50, biweeklyMulch: 209.00, biweeklyBagLeave: 223.25 },
+  { value: '2.00', label: '1.51 to 2.00 acres', weeklyMulch: 213.75, weeklyBagLeave: 232.75, biweeklyMulch: 270.75, biweeklyBagLeave: 289.75 }
 ]
 
-const cleanupRatePerPersonBlock = 35
-const cleanupMinimum = 70
+const cleanupRatePerPersonBlock = 33.25
+const cleanupMinimum = 66.50
 const extraLoad = 95
-const dogWasteRecurring = 25
-const overgrownFirstCut = 40
-const bagHaulAwayUpcharge = 25
-const deepEdgingRate = 4
-const deepEdgingMinimum = 40
-const shrubBlock = 30
-const shrubMinimum = 40
+const dogWasteRecurring = 23.75
+const overgrownFirstCut = 38
+const bagHaulAwayUpcharge = 23.75
+const deepEdgingRate = 3.8
+const deepEdgingMinimum = 38
+const shrubBlock = 28.5
+const shrubMinimum = 38
 
 function currency(n) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(n || 0))
-}
-
-function scrollToId(id) {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
 export default function App() {
@@ -202,39 +198,28 @@ export default function App() {
             <div className="eyebrow">Premium • Friendly • Trustworthy</div>
             <h1>In House Property Care</h1>
             <p className="lead">Fast, professional property care with line-item estimates, easy contact, and no wasted time.</p>
-            <div className="contact-pill-row">
-              <a className="contact-pill" href={`tel:${PHONE_LINK}`}>Call {PHONE_DISPLAY}</a>
-              <a className="contact-pill" href={`sms:${PHONE_LINK}`}>Text {PHONE_DISPLAY}</a>
-              <a className="contact-pill" href={`mailto:${PUBLIC_EMAIL}`}>{PUBLIC_EMAIL}</a>
-            </div>
           </div>
         </div>
-
-        <div className="cta-grid">
-          <button className="cta-card cta-primary" onClick={() => scrollToId('estimate')}>
-            <strong>Get an Instant Estimate</strong>
-            <span>Build a line-item estimate and email it to yourself and the customer.</span>
-          </button>
-          <button className="cta-card cta-secondary" onClick={() => scrollToId('request-care')}>
-            <strong>Request Property Care</strong>
-            <span>Skip the quote builder and jump straight to call, text, or email options.</span>
-          </button>
+        <div className="header-contact">
+          <a className="contact-pill" href={`tel:${PHONE_LINK}`}>Call {PHONE_DISPLAY}</a>
+          <a className="contact-pill" href={`sms:${PHONE_LINK}`}>Text {PHONE_DISPLAY}</a>
+          <a className="contact-pill" href={`mailto:${PUBLIC_EMAIL}`}>{PUBLIC_EMAIL}</a>
         </div>
       </header>
 
       <section className="panel intro-panel">
         <div className="mini-grid">
           <div className="mini-card">
-            <strong>What this site does</strong>
-            <span>Shows a general estimate first, then final pricing is verified before contract signing.</span>
+            <strong>Get pricing fast</strong>
+            <span>Build a line-item estimate before you ever need to meet in person.</span>
           </div>
           <div className="mini-card">
-            <strong>How pricing works</strong>
-            <span>Mowing is size-based. Cleanups are labor-based. Add-ons are shown as separate line items.</span>
+            <strong>See what is included</strong>
+            <span>Mowing is size-based. Cleanups are labor-based. Add-ons are shown clearly.</span>
           </div>
           <div className="mini-card">
-            <strong>How service starts</strong>
-            <span>Review → verification → contract → signed approval → service begins.</span>
+            <strong>Move forward easily</strong>
+            <span>Send the estimate to yourself and us, then we verify and send the contract.</span>
           </div>
         </div>
       </section>
@@ -454,30 +439,6 @@ export default function App() {
           </ul>
         </aside>
       </main>
-
-      <section className="panel request-panel" id="request-care">
-        <div className="request-header">
-          <div>
-            <h2>Request Property Care</h2>
-            <p>Use the estimate builder above, or skip it and contact us directly. We can review the property, verify details, and send the contract after review.</p>
-          </div>
-        </div>
-
-        <div className="request-grid">
-          <a className="contact-card" href={`tel:${PHONE_LINK}`}>
-            <strong>Call</strong>
-            <span>{PHONE_DISPLAY}</span>
-          </a>
-          <a className="contact-card" href={`sms:${PHONE_LINK}`}>
-            <strong>Text</strong>
-            <span>{PHONE_DISPLAY}</span>
-          </a>
-          <a className="contact-card" href={`mailto:${PUBLIC_EMAIL}`}>
-            <strong>Email</strong>
-            <span>{PUBLIC_EMAIL}</span>
-          </a>
-        </div>
-      </section>
     </div>
   )
 }
