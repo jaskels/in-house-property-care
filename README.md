@@ -1,7 +1,9 @@
+
 # In House Property Care
 
-Updated site package with:
-- visible phone/text/email
-- Send Estimate button
-- Netlify function for Resend
-- dog waste changed to recurring mowing pricing instead of one-time
+This update:
+- removes the two top homepage buttons
+- lowers service pricing by 5%
+- keeps mileage travel pricing unchanged
+- keeps line-item estimate emails
+- keeps call, text, and email visible
