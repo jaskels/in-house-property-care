@@ -1,9 +1,9 @@
-
 # In House Property Care
 
-This update:
-- removes the two top homepage buttons
-- lowers service pricing by 5%
-- keeps mileage travel pricing unchanged
-- keeps line-item estimate emails
-- keeps call, text, and email visible
+Updated package with:
+- line-item estimate display
+- line-item email breakdown
+- fixed recurring dog waste pricing
+- distinct homepage buttons
+- visible phone, text, and email
+- Netlify function for Resend email delivery

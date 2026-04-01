@@ -1,4 +1,3 @@
-
 :root {
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: #1f2937;
@@ -37,14 +36,11 @@ a { color: inherit; text-decoration: none; }
 
 .topbar {
   display: flex;
+  justify-content: space-between;
   gap: 28px;
   padding: 28px;
   margin-bottom: 24px;
   align-items: center;
-}
-
-.simple-topbar {
-  justify-content: flex-start;
 }
 
 .brand-wrap {
@@ -101,6 +97,37 @@ h3 { font-size: 1.05rem; }
   padding: 10px 14px;
   font-weight: 700;
   color: #334155;
+}
+
+.cta-grid {
+  display: grid;
+  gap: 12px;
+  min-width: 320px;
+}
+
+.cta-card {
+  border: 0;
+  border-radius: 20px;
+  padding: 18px;
+  text-align: left;
+  cursor: pointer;
+  display: grid;
+  gap: 6px;
+}
+
+.cta-card strong { font-size: 1rem; }
+.cta-card span { color: #e2e8f0; }
+
+.cta-primary {
+  background: #a11c27;
+  color: white;
+  box-shadow: 0 12px 24px rgba(161,28,39,0.22);
+}
+
+.cta-secondary {
+  background: #0f172a;
+  color: white;
+  box-shadow: 0 12px 24px rgba(15,23,42,0.16);
 }
 
 .intro-panel {
@@ -350,5 +377,9 @@ input:focus, select:focus, textarea:focus {
   .brand-logo {
     width: 100px;
     height: 100px;
+  }
+  .cta-grid {
+    width: 100%;
+    min-width: 0;
   }
 }
