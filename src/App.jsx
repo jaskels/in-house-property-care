@@ -1,3 +1,4 @@
+
 import { useMemo, useState } from 'react'
 
 const COUNTY = 'Salt Lake County'
@@ -29,6 +30,16 @@ const shrubMinimum = 38
 
 function currency(n) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(n || 0))
+}
+
+function SectionHeading({ kicker, title, text }) {
+  return (
+    <div className="section-heading">
+      {kicker ? <div className="section-kicker">{kicker}</div> : null}
+      <h2>{title}</h2>
+      {text ? <p className="section-copy">{text}</p> : null}
+    </div>
+  )
 }
 
 export default function App() {
@@ -196,10 +207,14 @@ export default function App() {
           <img src="/logo.png" alt="In House Property Care" className="brand-logo" />
           <div>
             <div className="eyebrow">Premium • Friendly • Trustworthy</div>
-            <h1>In House Property Care</h1>
-            <p className="lead">Fast, professional property care with line-item estimates, easy contact, and no wasted time.</p>
+            <h1>Professional Property Care for Salt Lake County Homes</h1>
+            <p className="lead">
+              In House Property Care provides reliable weekly mowing, biweekly mowing, spring cleanups,
+              shrub trimming, deep edging, and debris removal with clear estimates and friendly service.
+            </p>
           </div>
         </div>
+
         <div className="header-contact">
           <a className="contact-pill" href={`tel:${PHONE_LINK}`}>Call {PHONE_DISPLAY}</a>
           <a className="contact-pill" href={`sms:${PHONE_LINK}`}>Text {PHONE_DISPLAY}</a>
@@ -208,25 +223,68 @@ export default function App() {
       </header>
 
       <section className="panel intro-panel">
+        <SectionHeading
+          kicker="Salt Lake County Property Care"
+          title="Fast estimates, clear pricing, and dependable service"
+          text="We help homeowners keep their properties clean, maintained, and looking their best with dependable lawn care and exterior property services across Salt Lake County. From recurring mowing to one-time cleanups, our goal is to make property care simple, professional, and stress-free."
+        />
         <div className="mini-grid">
           <div className="mini-card">
-            <strong>Get pricing fast</strong>
-            <span>Build a line-item estimate before you ever need to meet in person.</span>
+            <strong>Weekly and biweekly mowing</strong>
+            <span>Recurring lawn care with trimming, standard edging, and blower cleanup included.</span>
           </div>
           <div className="mini-card">
-            <strong>See what is included</strong>
-            <span>Mowing is size-based. Cleanups are labor-based. Add-ons are shown clearly.</span>
+            <strong>Spring cleanups and debris removal</strong>
+            <span>Refresh the property with labor-based cleanup pricing and straightforward add-ons.</span>
           </div>
           <div className="mini-card">
-            <strong>Move forward easily</strong>
-            <span>Send the estimate to yourself and us, then we verify and send the contract.</span>
+            <strong>Online estimates before you meet</strong>
+            <span>Build a line-item estimate online, then we verify details before contract signing.</span>
           </div>
+        </div>
+      </section>
+
+      <section className="panel content-panel">
+        <SectionHeading
+          kicker="Our Property Care Services"
+          title="Lawn care and property maintenance built around what homeowners actually need"
+          text="In House Property Care provides lawn care and property maintenance services for homeowners in Salt Lake County. Our services include weekly mowing, biweekly mowing, spring cleanups, shrub trimming, deep edging, debris removal, and general exterior property care."
+        />
+        <div className="service-grid">
+          <article className="service-card">
+            <h3>Weekly Mowing</h3>
+            <p>Keep your lawn consistently maintained with dependable weekly mowing, trimming, standard edging, and blower cleanup.</p>
+          </article>
+          <article className="service-card">
+            <h3>Biweekly Mowing</h3>
+            <p>A flexible mowing option for properties that do not need weekly service but still need regular care and cleanup.</p>
+          </article>
+          <article className="service-card">
+            <h3>Spring Cleanups</h3>
+            <p>Clear leaves, branches, debris, and seasonal buildup with cleanup services designed to refresh your property.</p>
+          </article>
+          <article className="service-card">
+            <h3>Shrub Trimming</h3>
+            <p>Maintain a clean, polished look with professional shrub and bush trimming that includes normal debris haul-away.</p>
+          </article>
+          <article className="service-card">
+            <h3>Deep Edging</h3>
+            <p>Refresh lawn edges and borders for a sharper, cleaner curb appeal finish.</p>
+          </article>
+          <article className="service-card">
+            <h3>Debris Removal</h3>
+            <p>Remove excess yard debris and cleanup materials to leave the property looking finished and professional.</p>
+          </article>
         </div>
       </section>
 
       <main className="main-grid">
         <section className="panel" id="estimate">
-          <h2>Instant estimate</h2>
+          <SectionHeading
+            kicker="Instant Estimate"
+            title="Build a property care estimate online"
+            text="Choose your services, property size, and service frequency to see a general line-item estimate before scheduling. Final pricing is subject to verification of property size, site conditions, and selected services."
+          />
           <div className="disclaimer">
             Estimated quote only. Final price is subject to verification of property size, site conditions, and selected services. Service begins only after contract review and signing.
           </div>
@@ -372,7 +430,11 @@ export default function App() {
         </section>
 
         <aside className="panel estimate-panel">
-          <h2>Your estimate</h2>
+          <SectionHeading
+            kicker="Line-Item Estimate"
+            title="See what is included"
+            text="This estimate shows recurring items and one-time add-ons separately so pricing stays clear."
+          />
 
           {estimate.recurringLines.length > 0 && (
             <>
@@ -439,6 +501,58 @@ export default function App() {
           </ul>
         </aside>
       </main>
+
+      <section className="panel content-panel">
+        <SectionHeading
+          kicker="Why Homeowners Choose Us"
+          title="Premium property care with a friendly, trustworthy approach"
+          text="We focus on professional results, clear communication, and a clean finished look so customers can keep their properties maintained without wasted time or confusion."
+        />
+        <div className="benefit-grid">
+          <div className="benefit-card">
+            <strong>Clear online estimates</strong>
+            <span>Build an estimate before scheduling so you can review the numbers first.</span>
+          </div>
+          <div className="benefit-card">
+            <strong>Recurring and one-time options</strong>
+            <span>Choose weekly mowing, biweekly mowing, or seasonal cleanup work as needed.</span>
+          </div>
+          <div className="benefit-card">
+            <strong>Professional finish</strong>
+            <span>We prioritize curb appeal, blower cleanup, and a polished final result.</span>
+          </div>
+          <div className="benefit-card">
+            <strong>Friendly communication</strong>
+            <span>Reach out by call, text, or email and choose the contact method you prefer.</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="panel content-panel faq-panel">
+        <SectionHeading
+          kicker="Service Area and FAQs"
+          title="Salt Lake County property care with simple answers"
+          text="In House Property Care proudly serves homeowners across Salt Lake County, including West Jordan and surrounding areas."
+        />
+        <div className="faq-grid">
+          <article className="faq-item">
+            <h3>Do you offer weekly mowing in Salt Lake County?</h3>
+            <p>Yes. We offer weekly mowing service for homeowners across Salt Lake County.</p>
+          </article>
+          <article className="faq-item">
+            <h3>Do you offer spring cleanups?</h3>
+            <p>Yes. We provide spring cleanups, debris removal, and seasonal property refresh services.</p>
+          </article>
+          <article className="faq-item">
+            <h3>Do you give estimates online?</h3>
+            <p>Yes. Our website provides a general estimate based on the services and property details you enter. Final pricing is subject to verification.</p>
+          </article>
+          <article className="faq-item">
+            <h3>What services do you provide?</h3>
+            <p>We provide weekly mowing, biweekly mowing, spring cleanups, shrub trimming, deep edging, debris removal, and general exterior property care.</p>
+          </article>
+        </div>
+      </section>
     </div>
   )
 }
