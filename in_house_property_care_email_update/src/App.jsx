@@ -1,59 +1,410 @@
 import { useMemo, useState } from 'react'
 
-const COUNTY = 'Salt Lake County'
-const MILE_RATE = 0.75
 const PHONE_DISPLAY = '801-898-0281'
 const PHONE_LINK = '8018980281'
 const PUBLIC_EMAIL = 'ihiutah@gmail.com'
 
-const sizeRanges = [
-  { value: '0.10', label: 'Up to 0.10 acre', weeklyMulch: 55, weeklyBagLeave: 65, biweeklyMulch: 70 },
-  { value: '0.25', label: '0.11 to 0.25 acre', weeklyMulch: 65, weeklyBagLeave: 75, biweeklyMulch: 85 },
-  { value: '0.50', label: '0.26 to 0.50 acre', weeklyMulch: 85, weeklyBagLeave: 95, biweeklyMulch: 110 },
-  { value: '0.75', label: '0.51 to 0.75 acre', weeklyMulch: 110, weeklyBagLeave: 120, biweeklyMulch: 140 },
-  { value: '1.00', label: '0.76 to 1.00 acre', weeklyMulch: 135, weeklyBagLeave: 145, biweeklyMulch: 170 },
-  { value: '1.50', label: '1.01 to 1.50 acres', weeklyMulch: 175, weeklyBagLeave: 190, biweeklyMulch: 220 },
-  { value: '2.00', label: '1.51 to 2.00 acres', weeklyMulch: 225, weeklyBagLeave: 245, biweeklyMulch: 285 }
+const serviceAreas = {
+  saltLakeCounty: {
+    label: 'Salt Lake County',
+    adjustment: 0,
+    minimum: 0,
+    review: false
+  },
+  jeremyRanch: {
+    label: 'Jeremy Ranch / Kimball Junction',
+    adjustment: 45,
+    minimum: 175,
+    review: false
+  },
+  parkCity: {
+    label: 'Park City',
+    adjustment: 65,
+    minimum: 225,
+    review: false
+  },
+  deerValley: {
+    label: 'Deer Valley',
+    adjustment: 85,
+    minimum: 250,
+    review: false
+  },
+  otherMountain: {
+    label: 'Other mountain / vacation property area',
+    adjustment: 0,
+    minimum: 0,
+    review: true
+  }
+}
+
+const basicPrices = {
+  weekly: {
+    small: 55,
+    medium: 65,
+    large: 85,
+    largePlus: 110
+  },
+  biweekly: {
+    small: 70,
+    medium: 85,
+    large: 110,
+    largePlus: 140
+  }
+}
+
+const exteriorPrices = {
+  weekly: {
+    small: 95,
+    medium: 125,
+    large: 165,
+    largePlus: 210
+  },
+  biweekly: {
+    small: 125,
+    medium: 160,
+    large: 210,
+    largePlus: 275
+  }
+}
+
+const rentalPrices = {
+  studio: 145,
+  twoBed: 185,
+  threeBed: 225,
+  fourBed: 295,
+  fivePlus: 375
+}
+
+const addOnPrices = {
+  shrubMaintenance: 45,
+  yardCleanup: 95,
+  seasonalCleanup: 145,
+  exteriorWindowCleaning: 75,
+  curbAppealDetail: 65,
+  propertyPhotoUpdates: 35,
+  minorRepairCoordination: 45,
+  sprinklerSupport: 55,
+  petWaste: 25,
+  trashBinService: 15,
+  trashRemoval: 25,
+  restockOnSite: 15,
+  sameDay: 50,
+  tightWindow: 75,
+  emergencyBackup: 100,
+  laundryOnSite: 35,
+  laundryFull: 65,
+  overgrownFirstCut: 40
+}
+
+const propertySizes = {
+  small: 'Small property',
+  medium: 'Medium property',
+  large: 'Large property',
+  largePlus: 'Large / corner lot / heavier care'
+}
+
+const rentalSizes = {
+  studio: 'Studio / 1 bed / 1 bath',
+  twoBed: '2 bed / 1–2 bath',
+  threeBed: '3 bed / 2 bath',
+  fourBed: '4 bed / 3 bath',
+  fivePlus: '5+ bed / larger vacation property'
+}
+
+const galleryPhotos = [
+  {
+    src: '/photos/lawn-care-yard-maintenance.jpg',
+    title: 'Lawn Care & Yard Maintenance',
+    alt: 'Lawn care and yard maintenance in Salt Lake County'
+  },
+  {
+    src: '/photos/spring-fall-cleanup-south-jordan-utah.jpg',
+    title: 'Spring & Fall Cleanup',
+    alt: 'Spring and fall yard cleanup in South Jordan Utah'
+  },
+  {
+    src: '/photos/exterior-property-care.jpg',
+    title: 'Exterior Property Care',
+    alt: 'Exterior property care cleanup'
+  },
+  {
+    src: '/photos/landscape-maintenance.jpg',
+    title: 'Landscape Maintenance',
+    alt: 'Landscape maintenance and cleanup'
+  }
 ]
 
-const cleanupRate = 35
-const cleanupMin = 70
-const extraLoad = 95
-const dogWaste = 25
-const overgrown = 40
-const bagHaulAwayUpcharge = 25
-const deepEdgingRate = 4
-const deepEdgingMin = 40
-const shrubBlock = 30
-const shrubMin = 40
+const serviceOptions = [
+  { key: 'shrubMaintenance', label: 'Shrub trimming / shrub maintenance', price: addOnPrices.shrubMaintenance },
+  { key: 'yardCleanup', label: 'Yard cleanup', price: addOnPrices.yardCleanup },
+  { key: 'seasonalCleanup', label: 'Seasonal cleanup', price: addOnPrices.seasonalCleanup },
+  { key: 'exteriorWindowCleaning', label: 'Exterior window cleaning', price: addOnPrices.exteriorWindowCleaning },
+  { key: 'curbAppealDetail', label: 'Curb Appeal & Exterior Detail', price: addOnPrices.curbAppealDetail },
+  { key: 'propertyPhotoUpdates', label: 'Property Checks & Photo Updates', price: addOnPrices.propertyPhotoUpdates },
+  { key: 'minorRepairCoordination', label: 'Minor Repair Coordination', price: addOnPrices.minorRepairCoordination },
+  { key: 'sprinklerSupport', label: 'Sprinkler Adjustment & Minor Irrigation Support', price: addOnPrices.sprinklerSupport },
+  { key: 'trashBinService', label: 'Trash Bin / Curbside Service', price: addOnPrices.trashBinService }
+]
 
-function currency(n) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(n || 0))
+function currency(value) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0
+  }).format(Number(value || 0))
+}
+
+function toBoolean(value) {
+  return value === true || value === 'true'
+}
+
+function getPath() {
+  if (typeof window === 'undefined') return '/'
+  return window.location.pathname
+}
+
+async function readPhotoFiles(fileList) {
+  const files = Array.from(fileList || []).slice(0, 4)
+
+  const readers = files.map(file => (
+    new Promise((resolve, reject) => {
+      const reader = new FileReader()
+
+      reader.onload = () => {
+        const result = String(reader.result || '')
+        const base64 = result.includes(',') ? result.split(',')[1] : result
+
+        resolve({
+          name: file.name,
+          type: file.type || 'application/octet-stream',
+          size: file.size,
+          content: base64
+        })
+      }
+
+      reader.onerror = () => reject(new Error(`Unable to read ${file.name}`))
+      reader.readAsDataURL(file)
+    })
+  ))
+
+  return Promise.all(readers)
 }
 
 export default function App() {
+  const [page, setPage] = useState(getPath() === '/estimate' ? 'estimate' : 'home')
+
+  function goToEstimate() {
+    setPage('estimate')
+    window.history.pushState({}, '', '/estimate')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function goHome(sectionId = '') {
+    setPage('home')
+    window.history.pushState({}, '', sectionId ? `/#${sectionId}` : '/')
+
+    setTimeout(() => {
+      if (sectionId) {
+        document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
+    }, 50)
+  }
+
+  return (
+    <div className="site-shell">
+      <Header goHome={goHome} goToEstimate={goToEstimate} />
+
+      {page === 'estimate' ? (
+        <EstimatePage />
+      ) : (
+        <HomePage goToEstimate={goToEstimate} goHome={goHome} />
+      )}
+
+      <a className="mobile-estimate-button" href="/estimate" onClick={event => {
+        event.preventDefault()
+        goToEstimate()
+      }}>
+        Request Free Estimate
+      </a>
+    </div>
+  )
+}
+
+function Header({ goHome, goToEstimate }) {
+  return (
+    <header className="topbar">
+      <button className="brand-button" type="button" onClick={() => goHome()}>
+        <img src="/logo.png" alt="In House Property Care" className="brand-logo" />
+      </button>
+
+      <nav className="nav-links" aria-label="Main navigation">
+        <button type="button" onClick={() => goHome()}>Home</button>
+        <button type="button" onClick={() => goHome('services')}>Services</button>
+        <button type="button" onClick={() => goHome('gallery')}>Gallery</button>
+        <button className="nav-cta" type="button" onClick={goToEstimate}>Request Free Estimate</button>
+      </nav>
+    </header>
+  )
+}
+
+function HomePage({ goToEstimate }) {
+  return (
+    <main>
+      <section className="hero-section">
+        <div className="hero-copy">
+          <div className="eyebrow">Based in West Jordan • Serving Salt Lake County</div>
+          <h1>Reliable Property Care for Homes, Rentals &amp; Short-Term Stays</h1>
+          <p className="lead">
+            Helping homeowners, rental property owners, Airbnb hosts, VRBO hosts, and vacation home owners keep properties
+            clean, maintained, guest-ready, and looking their best.
+          </p>
+          <p className="service-area-line">
+            Based in West Jordan and serving Salt Lake County, with short-term rental and vacation property care available
+            in Park City, Deer Valley, Jeremy Ranch, and select surrounding areas.
+          </p>
+
+          <div className="hero-actions">
+            <button className="button button-primary" type="button" onClick={goToEstimate}>Request Free Estimate</button>
+            <a className="button button-secondary" href={`tel:${PHONE_LINK}`}>Call or Text Now</a>
+          </div>
+        </div>
+
+        <div className="hero-card">
+          <strong>Weekly lawn care starting at $55</strong>
+          <span>Small, regularly maintained lawns. Larger yards, overgrowth, pet waste, access issues, or extra cleanup may increase the estimate.</span>
+        </div>
+      </section>
+
+      <section className="section-panel compact" id="services">
+        <div className="section-heading">
+          <span className="eyebrow">Services</span>
+          <h2>Choose a Care Plan or Individual Service</h2>
+          <p>
+            Choose a recurring care plan or request individual property care services as needed. We’ll review your property
+            details, photos, and service needs to provide a fair, clear estimate.
+          </p>
+        </div>
+
+        <div className="plan-grid">
+          <PlanCard
+            title="Basic Lawn Care Plan"
+            price="Starting at $55/week"
+            text="Mowing, edging, driveway and sidewalk blow-off, light yard check, and optional photo updates."
+            button="Request Lawn Care Estimate"
+            onClick={goToEstimate}
+          />
+          <PlanCard
+            title="Full Exterior Care Plan"
+            price="Starting at $95/week"
+            text="Mowing, edging, weed control, basic exterior check, and ongoing curb appeal support."
+            button="Request Exterior Care Estimate"
+            onClick={goToEstimate}
+          />
+          <PlanCard
+            title="Rental / Short-Term Rental Care"
+            price="Turnovers from $145"
+            text="Guest-ready resets, trash checks, restocking checks, and issue reporting for rentals, Airbnb, VRBO, and vacation homes."
+            button="Request Rental Care Estimate"
+            onClick={goToEstimate}
+          />
+        </div>
+      </section>
+
+      <section className="section-panel service-summary">
+        <div>
+          <span className="eyebrow">Individual Services</span>
+          <h2>À La Carte Property Care</h2>
+          <p>
+            Need one service instead of a plan? Request mowing, yard cleanup, shrub trimming, exterior window cleaning,
+            curb appeal detail, sprinkler support, trash bin service, or property photo updates.
+          </p>
+        </div>
+        <button className="button button-primary" type="button" onClick={goToEstimate}>Request Free Estimate</button>
+      </section>
+
+      <section className="section-panel compact" id="gallery">
+        <div className="section-heading">
+          <span className="eyebrow">Recent Work</span>
+          <h2>Recent Property Care Work</h2>
+          <p>See examples of lawn care, cleanup, exterior detail, and property care work completed for local properties.</p>
+        </div>
+
+        <div className="gallery-grid">
+          {galleryPhotos.map(photo => (
+            <figure className="gallery-card" key={photo.src}>
+              <img src={photo.src} alt={photo.alt} loading="lazy" />
+              <figcaption>{photo.title}</figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+
+      <section className="section-panel contact-panel">
+        <div>
+          <span className="eyebrow">Get Started</span>
+          <h2>Ready for a property care estimate?</h2>
+          <p>
+            Send your property details and photos when available. We’ll review the request and follow up before service is confirmed.
+          </p>
+        </div>
+
+        <div className="contact-actions">
+          <button className="button button-primary" type="button" onClick={goToEstimate}>Request Free Estimate</button>
+          <a className="button button-secondary" href={`sms:${PHONE_LINK}`}>Text {PHONE_DISPLAY}</a>
+        </div>
+      </section>
+    </main>
+  )
+}
+
+function PlanCard({ title, price, text, button, onClick }) {
+  return (
+    <article className="plan-card">
+      <div>
+        <h3>{title}</h3>
+        <strong>{price}</strong>
+        <p>{text}</p>
+      </div>
+      <button className="button button-card" type="button" onClick={onClick}>{button}</button>
+    </article>
+  )
+}
+
+function EstimatePage() {
   const [form, setForm] = useState({
-    address: '',
-    county: COUNTY,
+    selectedPlan: 'basic',
     contactName: '',
     phone: '',
     email: '',
     preferredContact: 'text',
-    serviceMode: 'estimate',
-    quoteType: 'mowing',
-    sizeRange: '0.10',
+    propertyAddress: '',
+    serviceArea: 'saltLakeCounty',
+    propertyType: 'home',
+    propertySize: 'small',
     frequency: 'weekly',
-    mowStyle: 'mulch',
-    overgrownFirstCut: false,
-    dogWaste: false,
-    deepEdgingFeet: '',
-    shrubBlocks: '',
-    cleanupPeople: '1',
-    cleanupHours: '1',
-    cleanupExtraLoads: '0',
-    outsideCountyMilesRoundTrip: '',
+    mowingArea: 'front-and-back',
+    overgrown: 'false',
+    petWaste: 'false',
+    edging: 'true',
+    blowOff: 'true',
+    photoUpdates: 'false',
+    accessNotes: '',
+    rentalSize: 'studio',
+    rentalNeed: 'one-time-backup',
+    sameDay: 'none',
+    checkoutTime: '',
+    checkinTime: '',
+    laundry: 'clean-on-site',
+    restocking: 'check-report',
+    trashRemoval: 'false',
+    trashBinService: 'false',
+    serviceSelections: [],
     notes: ''
   })
+
+  const [photoFiles, setPhotoFiles] = useState([])
   const [sending, setSending] = useState(false)
   const [sendMessage, setSendMessage] = useState('')
 
@@ -61,335 +412,558 @@ export default function App() {
     setForm(prev => ({ ...prev, [name]: value }))
   }
 
-  const estimate = useMemo(() => {
-    const selectedRange = sizeRanges.find(r => r.value === form.sizeRange) || sizeRanges[0]
-    let perVisit = 0
-    let monthly = 0
-    let oneTime = 0
-
-    if (form.quoteType === 'mowing') {
-      if (form.frequency === 'weekly') {
-        perVisit = form.mowStyle === 'bagLeave' ? selectedRange.weeklyBagLeave : selectedRange.weeklyMulch
-      } else {
-        perVisit = selectedRange.biweeklyMulch
+  function toggleService(key) {
+    setForm(prev => {
+      const exists = prev.serviceSelections.includes(key)
+      return {
+        ...prev,
+        serviceSelections: exists
+          ? prev.serviceSelections.filter(item => item !== key)
+          : [...prev.serviceSelections, key]
       }
+    })
+  }
 
-      if (form.mowStyle === 'bagHaulAway') {
-        perVisit = selectedRange.weeklyBagLeave + bagHaulAwayUpcharge
-      }
+  const estimate = useMemo(() => buildEstimate(form), [form])
 
-      if (form.overgrownFirstCut) oneTime += overgrown
-      if (form.dogWaste) oneTime += dogWaste
-
-      const deepEdgingFeet = Number(form.deepEdgingFeet || 0)
-      if (deepEdgingFeet > 0) {
-        oneTime += Math.max(deepEdgingFeet * deepEdgingRate, deepEdgingMin)
-      }
-
-      const shrubBlocksCount = Number(form.shrubBlocks || 0)
-      if (shrubBlocksCount > 0) {
-        oneTime += Math.max(shrubBlocksCount * shrubBlock, shrubMin)
-      }
-
-      monthly = form.frequency === 'weekly' ? perVisit * 4 : perVisit * 2
-    } else {
-      const people = Number(form.cleanupPeople || 1)
-      const hours = Math.max(Number(form.cleanupHours || 1), 1)
-      const loads = Number(form.cleanupExtraLoads || 0)
-      oneTime = Math.max(people * hours * cleanupRate * 2, cleanupMin)
-      oneTime += loads * extraLoad
-
-      const shrubBlocksCount = Number(form.shrubBlocks || 0)
-      if (shrubBlocksCount > 0) {
-        oneTime += Math.max(shrubBlocksCount * shrubBlock, shrubMin)
-      }
-    }
-
-    const travelMiles = form.county === COUNTY ? 0 : Number(form.outsideCountyMilesRoundTrip || 0)
-    const travel = travelMiles > 0 ? travelMiles * MILE_RATE : 0
-    const totalNow = oneTime + travel
-    const monthlyWithTravel = monthly + travel
-    const firstBill = form.quoteType === 'mowing' ? monthlyWithTravel + oneTime : totalNow
-
-    return { perVisit, monthly, oneTime, travel, totalNow, monthlyWithTravel, firstBill }
-  }, [form])
-
-  async function sendEstimate() {
+  async function sendEstimateRequest() {
     setSendMessage('')
 
-    if (!form.contactName.trim() || !form.email.trim() || !form.address.trim()) {
-      setSendMessage('Please enter the customer name, email, and property address first.')
+    if (!form.contactName.trim() || !form.phone.trim() || !form.email.trim() || !form.propertyAddress.trim()) {
+      setSendMessage('Please enter your name, phone, email, and property address before submitting.')
       return
     }
 
     setSending(true)
 
     try {
+      const photos = await readPhotoFiles(photoFiles)
+
       const response = await fetch('/.netlify/functions/send-estimate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ form, estimate })
+        body: JSON.stringify({ form, estimate, photos })
       })
 
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.error || 'Unable to send the estimate right now.')
+        throw new Error(result.error || 'Unable to send your request right now.')
       }
 
-      setSendMessage('Estimate sent successfully to the customer and to In House Property Care.')
+      setSendMessage('Your estimate request was sent. We will review it and follow up before service is confirmed.')
     } catch (error) {
-      setSendMessage(error.message || 'Something went wrong while sending the estimate.')
+      setSendMessage(error.message || 'Something went wrong while sending the request.')
     } finally {
       setSending(false)
     }
   }
 
   return (
-    <div className="site-shell">
-      <header className="topbar">
-        <div className="brand-wrap">
-          <img src="/logo.png" alt="In House Property Care" className="brand-logo" />
-          <div>
-            <div className="eyebrow">Premium • Friendly • Trustworthy</div>
-            <h1>In House Property Care</h1>
-            <p className="lead">Fast, professional property care with instant estimates and personal follow-up.</p>
-          </div>
-        </div>
-        <div className="cta-stack">
-          <a className="button button-primary" href="#estimate">Get an Instant Estimate</a>
-          <a className="button button-secondary" href="#contact">Request Property Care</a>
-        </div>
-      </header>
-
-      <main className="main-grid">
-        <section className="panel hero-panel">
-          <h2>Property care without wasting your time</h2>
+    <main className="estimate-layout">
+      <section className="section-panel estimate-form-panel">
+        <div className="section-heading">
+          <span className="eyebrow">Free Estimate</span>
+          <h1>Request a Free Property Care Estimate</h1>
           <p>
-            Enter your address, choose your services, and see a general estimate before you ever need to meet in person.
-            Final pricing is subject to verification of property size, site conditions, and selected services.
+            Choose a plan, answer a few direct questions, and get an estimated number. Final pricing is reviewed before service is confirmed.
           </p>
-          <div className="feature-grid">
-            <div className="feature-card">
-              <strong>Weekly &amp; Biweekly Mowing</strong>
-              <span>Trim, standard edging, and blower cleanup included.</span>
+        </div>
+
+        <div className="plan-choice-grid">
+          <ChoiceButton active={form.selectedPlan === 'basic'} onClick={() => update('selectedPlan', 'basic')} title="Basic Lawn Care" text="Mowing, edging, and blow-off" />
+          <ChoiceButton active={form.selectedPlan === 'exterior'} onClick={() => update('selectedPlan', 'exterior')} title="Full Exterior Care" text="Mowing, weed control, exterior care" />
+          <ChoiceButton active={form.selectedPlan === 'rental'} onClick={() => update('selectedPlan', 'rental')} title="Rental / Short-Term Rental" text="Turnovers and guest-ready resets" />
+          <ChoiceButton active={form.selectedPlan === 'alacarte'} onClick={() => update('selectedPlan', 'alacarte')} title="Individual Service" text="Add-on or one-time property care" />
+        </div>
+
+        <div className="form-grid">
+          <label>
+            Name
+            <input value={form.contactName} onChange={e => update('contactName', e.target.value)} placeholder="Your name" />
+          </label>
+
+          <label>
+            Phone
+            <input value={form.phone} onChange={e => update('phone', e.target.value)} placeholder="Phone number" />
+          </label>
+
+          <label>
+            Email
+            <input value={form.email} onChange={e => update('email', e.target.value)} placeholder="Email address" />
+          </label>
+
+          <label>
+            Preferred contact
+            <select value={form.preferredContact} onChange={e => update('preferredContact', e.target.value)}>
+              <option value="text">Text</option>
+              <option value="call">Call</option>
+              <option value="email">Email</option>
+            </select>
+          </label>
+
+          <label className="full-width">
+            Property address or city
+            <input value={form.propertyAddress} onChange={e => update('propertyAddress', e.target.value)} placeholder="Property address or city" />
+          </label>
+
+          <label>
+            Service area
+            <select value={form.serviceArea} onChange={e => update('serviceArea', e.target.value)}>
+              {Object.entries(serviceAreas).map(([key, area]) => (
+                <option key={key} value={key}>{area.label}</option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            Property type
+            <select value={form.propertyType} onChange={e => update('propertyType', e.target.value)}>
+              <option value="home">Home</option>
+              <option value="rental">Rental property</option>
+              <option value="short-term-rental">Short-term rental</option>
+              <option value="vacation-home">Vacation home</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+        </div>
+
+        {(form.selectedPlan === 'basic' || form.selectedPlan === 'exterior') && (
+          <LawnExteriorQuestions form={form} update={update} selectedPlan={form.selectedPlan} toggleService={toggleService} />
+        )}
+
+        {form.selectedPlan === 'rental' && (
+          <RentalQuestions form={form} update={update} toggleService={toggleService} />
+        )}
+
+        {form.selectedPlan === 'alacarte' && (
+          <AlaCarteQuestions form={form} toggleService={toggleService} />
+        )}
+
+        <div className="form-grid">
+          <label className="full-width">
+            Add photos
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              capture="environment"
+              onChange={e => setPhotoFiles(e.target.files)}
+            />
+            <span className="field-help">
+              Photos are optional but strongly encouraged. Upload up to 4 photos of the lawn, cleanup area, rental, exterior, access, or problem areas.
+            </span>
+          </label>
+
+          <label className="full-width">
+            Gate, fence, access, or special instructions
+            <textarea
+              rows="3"
+              value={form.accessNotes}
+              onChange={e => update('accessNotes', e.target.value)}
+              placeholder="Gates, fences, locked areas, dogs, slopes, parking, trash location, laundry location, or access details"
+            />
+          </label>
+
+          <label className="full-width">
+            Notes
+            <textarea
+              rows="3"
+              value={form.notes}
+              onChange={e => update('notes', e.target.value)}
+              placeholder="Anything else we should know?"
+            />
+          </label>
+        </div>
+      </section>
+
+      <aside className="section-panel estimate-summary">
+        <span className="eyebrow">Estimated Number</span>
+        <h2>{estimate.reviewRequired ? 'Review Required' : currency(estimate.total)}</h2>
+        <p>{estimate.summary}</p>
+
+        <div className="estimate-lines">
+          {estimate.lines.map(line => (
+            <div className="estimate-row" key={line.label}>
+              <span>{line.label}</span>
+              <strong>{line.value}</strong>
             </div>
-            <div className="feature-card">
-              <strong>Spring Cleanups</strong>
-              <span>Labor-based quotes with debris removal included for normal jobs.</span>
-            </div>
-            <div className="feature-card">
-              <strong>Send the Estimate Instantly</strong>
-              <span>Customers and your business email both receive a copy.</span>
-            </div>
-          </div>
-        </section>
+          ))}
+        </div>
 
-        <section className="panel" id="estimate">
-          <h2>Instant estimate</h2>
-          <div className="disclaimer">
-            Estimated quote only. Final price is subject to verification of property size, site conditions, and selected services.
-            Service begins only after contract review and signing.
-          </div>
+        <div className="disclaimer">
+          This is an estimated quote based on the information provided. Final pricing may change if the property size,
+          condition, access, photos, timing, service needs, pet waste, trash, overgrowth, laundry, restocking, add-ons,
+          or submitted details are incomplete or different from the actual work required.
+        </div>
 
-          <div className="form-grid">
-            <label>
-              Property address
-              <input value={form.address} onChange={e => update('address', e.target.value)} placeholder="123 Main St, City, State" />
-            </label>
+        <button className="button button-primary full-button" type="button" onClick={sendEstimateRequest} disabled={sending}>
+          {sending ? 'Sending...' : 'Submit Estimate Request'}
+        </button>
 
-            <label>
-              County
-              <select value={form.county} onChange={e => update('county', e.target.value)}>
-                <option>{COUNTY}</option>
-                <option>Outside Salt Lake County</option>
-              </select>
-            </label>
+        {sendMessage ? <div className="status-message">{sendMessage}</div> : null}
 
-            {form.county !== COUNTY && (
-              <label>
-                Estimated round-trip miles outside county
-                <input
-                  type="number"
-                  min="0"
-                  value={form.outsideCountyMilesRoundTrip}
-                  onChange={e => update('outsideCountyMilesRoundTrip', e.target.value)}
-                  placeholder="40"
-                />
-              </label>
-            )}
+        <div className="mini-contact">
+          <a href={`tel:${PHONE_LINK}`}>Call {PHONE_DISPLAY}</a>
+          <a href={`sms:${PHONE_LINK}`}>Text {PHONE_DISPLAY}</a>
+          <a href={`mailto:${PUBLIC_EMAIL}`}>{PUBLIC_EMAIL}</a>
+        </div>
+      </aside>
+    </main>
+  )
+}
 
-            <label>
-              I want to...
-              <select value={form.serviceMode} onChange={e => update('serviceMode', e.target.value)}>
-                <option value="estimate">Request service now</option>
-                <option value="verify">Request verification first</option>
-              </select>
-            </label>
+function ChoiceButton({ active, title, text, onClick }) {
+  return (
+    <button className={`choice-card ${active ? 'active' : ''}`} type="button" onClick={onClick}>
+      <strong>{title}</strong>
+      <span>{text}</span>
+    </button>
+  )
+}
 
-            <label>
-              Quote type
-              <select value={form.quoteType} onChange={e => update('quoteType', e.target.value)}>
-                <option value="mowing">Mowing service</option>
-                <option value="cleanup">Spring cleanup</option>
-              </select>
-            </label>
+function LawnExteriorQuestions({ form, update, selectedPlan, toggleService }) {
+  const showExteriorAddOns = selectedPlan === 'exterior'
 
-            {form.quoteType === 'mowing' ? (
-              <>
-                <label>
-                  Property size range
-                  <select value={form.sizeRange} onChange={e => update('sizeRange', e.target.value)}>
-                    {sizeRanges.map(range => (
-                      <option key={range.value} value={range.value}>{range.label}</option>
-                    ))}
-                  </select>
-                </label>
+  return (
+    <>
+      <div className="question-block">
+        <h3>{selectedPlan === 'basic' ? 'Basic Lawn Care Details' : 'Full Exterior Care Details'}</h3>
 
-                <label>
-                  Frequency
-                  <select value={form.frequency} onChange={e => update('frequency', e.target.value)}>
-                    <option value="weekly">Weekly</option>
-                    <option value="biweekly">Biweekly</option>
-                  </select>
-                </label>
+        <div className="form-grid">
+          <label>
+            Property size
+            <select value={form.propertySize} onChange={e => update('propertySize', e.target.value)}>
+              {Object.entries(propertySizes).map(([key, label]) => (
+                <option key={key} value={key}>{label}</option>
+              ))}
+            </select>
+          </label>
 
-                <label>
-                  Mow style
-                  <select value={form.mowStyle} onChange={e => update('mowStyle', e.target.value)}>
-                    <option value="mulch">Mulch mow</option>
-                    <option value="bagLeave">Bag and leave</option>
-                    <option value="bagHaulAway">Bag and haul away</option>
-                  </select>
-                </label>
+          <label>
+            Service frequency
+            <select value={form.frequency} onChange={e => update('frequency', e.target.value)}>
+              <option value="weekly">Weekly</option>
+              <option value="biweekly">Every other week</option>
+            </select>
+          </label>
 
-                <label className="checkbox-row">
-                  <input type="checkbox" checked={form.overgrownFirstCut} onChange={e => update('overgrownFirstCut', e.target.checked)} />
-                  Add overgrown first-cut fee
-                </label>
+          <label>
+            Areas needing mowing
+            <select value={form.mowingArea} onChange={e => update('mowingArea', e.target.value)}>
+              <option value="front-only">Front yard only</option>
+              <option value="back-only">Back yard only</option>
+              <option value="front-and-back">Front and back yard</option>
+              <option value="large-corner">Large or corner lot</option>
+            </select>
+          </label>
 
-                <label className="checkbox-row">
-                  <input type="checkbox" checked={form.dogWaste} onChange={e => update('dogWaste', e.target.checked)} />
-                  Add dog waste cleanup
-                </label>
+          <label>
+            Is the lawn currently overgrown?
+            <select value={form.overgrown} onChange={e => update('overgrown', e.target.value)}>
+              <option value="false">No</option>
+              <option value="true">Yes</option>
+            </select>
+          </label>
 
-                <label>
-                  Deep edging linear feet
-                  <input type="number" min="0" value={form.deepEdgingFeet} onChange={e => update('deepEdgingFeet', e.target.value)} placeholder="0" />
-                </label>
+          <label>
+            Pet waste in service areas?
+            <select value={form.petWaste} onChange={e => update('petWaste', e.target.value)}>
+              <option value="false">No, areas will be clear</option>
+              <option value="true">Yes, cleanup is needed</option>
+            </select>
+          </label>
 
-                <label>
-                  Shrub trimming blocks (30 minutes each)
-                  <input type="number" min="0" value={form.shrubBlocks} onChange={e => update('shrubBlocks', e.target.value)} placeholder="0" />
-                </label>
-              </>
-            ) : (
-              <>
-                <label>
-                  Number of people
-                  <input type="number" min="1" value={form.cleanupPeople} onChange={e => update('cleanupPeople', e.target.value)} />
-                </label>
+          <label>
+            Photo updates after service?
+            <select value={form.photoUpdates} onChange={e => update('photoUpdates', e.target.value)}>
+              <option value="false">No</option>
+              <option value="true">Yes</option>
+            </select>
+          </label>
+        </div>
+      </div>
 
-                <label>
-                  Estimated labor hours
-                  <input type="number" min="1" step="0.5" value={form.cleanupHours} onChange={e => update('cleanupHours', e.target.value)} />
-                </label>
+      {showExteriorAddOns && (
+        <div className="question-block">
+          <h3>Exterior Add-Ons</h3>
+          <p className="small-copy">Normal weed control is included. Larger cleanup, shrubs, seasonal work, and irrigation support are added when needed.</p>
+          <ServiceCheckboxes selected={form.serviceSelections} toggleService={toggleService} filter={[
+            'shrubMaintenance',
+            'yardCleanup',
+            'seasonalCleanup',
+            'curbAppealDetail',
+            'sprinklerSupport',
+            'exteriorWindowCleaning'
+          ]} />
+        </div>
+      )}
+    </>
+  )
+}
 
-                <label>
-                  Additional trailer loads
-                  <input type="number" min="0" value={form.cleanupExtraLoads} onChange={e => update('cleanupExtraLoads', e.target.value)} />
-                </label>
+function RentalQuestions({ form, update, toggleService }) {
+  return (
+    <>
+      <div className="question-block">
+        <h3>Rental / Short-Term Rental Details</h3>
 
-                <label>
-                  Shrub trimming blocks (30 minutes each)
-                  <input type="number" min="0" value={form.shrubBlocks} onChange={e => update('shrubBlocks', e.target.value)} placeholder="0" />
-                </label>
-              </>
-            )}
+        <div className="form-grid">
+          <label>
+            Rental care needed
+            <select value={form.rentalNeed} onChange={e => update('rentalNeed', e.target.value)}>
+              <option value="one-time-backup">One-time backup turnover help</option>
+              <option value="recurring-turnover">Recurring turnover service</option>
+              <option value="same-day-turnover">Same-day turnover</option>
+              <option value="move-out-cleanup">Move-out cleanup</option>
+              <option value="guest-ready-reset">Guest-ready reset</option>
+            </select>
+          </label>
 
-            <label>
-              Customer name
-              <input value={form.contactName} onChange={e => update('contactName', e.target.value)} placeholder="Customer full name" />
-            </label>
+          <label>
+            Property size
+            <select value={form.rentalSize} onChange={e => update('rentalSize', e.target.value)}>
+              {Object.entries(rentalSizes).map(([key, label]) => (
+                <option key={key} value={key}>{label}</option>
+              ))}
+            </select>
+          </label>
 
-            <label>
-              Customer phone
-              <input value={form.phone} onChange={e => update('phone', e.target.value)} placeholder="Customer phone number" />
-            </label>
+          <label>
+            Same-day or rush timing
+            <select value={form.sameDay} onChange={e => update('sameDay', e.target.value)}>
+              <option value="none">No same-day rush</option>
+              <option value="sameDay">Same-day turnover</option>
+              <option value="tightWindow">Same-day under 4-hour window</option>
+              <option value="emergencyBackup">Last-minute emergency / backup cleaner request</option>
+            </select>
+          </label>
 
-            <label>
-              Customer email
-              <input value={form.email} onChange={e => update('email', e.target.value)} placeholder="Customer email address" />
-            </label>
+          <label>
+            Linen / laundry setup
+            <select value={form.laundry} onChange={e => update('laundry', e.target.value)}>
+              <option value="clean-on-site">Clean replacement linens/towels already on-site</option>
+              <option value="onsite">On-site laundry during turnover</option>
+              <option value="full">Full laundry service / multiple loads</option>
+              <option value="offsite">Off-site laundry handling</option>
+              <option value="host-handles">Host / owner handles laundry separately</option>
+            </select>
+          </label>
 
-            <label>
-              Preferred contact method
-              <select value={form.preferredContact} onChange={e => update('preferredContact', e.target.value)}>
-                <option value="text">Text</option>
-                <option value="call">Call</option>
-                <option value="email">Email</option>
-              </select>
-            </label>
+          <label>
+            Guest checkout time
+            <input value={form.checkoutTime} onChange={e => update('checkoutTime', e.target.value)} placeholder="Example: 10:00 AM" />
+          </label>
 
-            <label className="full-width">
-              Notes
-              <textarea rows="4" value={form.notes} onChange={e => update('notes', e.target.value)} placeholder="Gate notes, pets, special requests, or details you want us to know" />
-            </label>
-          </div>
-        </section>
+          <label>
+            Next guest check-in time
+            <input value={form.checkinTime} onChange={e => update('checkinTime', e.target.value)} placeholder="Example: 4:00 PM" />
+          </label>
 
-        <aside className="panel estimate-panel">
-          <h2>Your estimate</h2>
-          {form.quoteType === 'mowing' ? (
-            <>
-              <div className="estimate-row"><span>Estimated per visit</span><strong>{currency(estimate.perVisit)}</strong></div>
-              <div className="estimate-row"><span>Estimated monthly service</span><strong>{currency(estimate.monthly)}</strong></div>
-              <div className="estimate-row"><span>One-time add-ons / first visit</span><strong>{currency(estimate.oneTime)}</strong></div>
-              <div className="estimate-row"><span>Travel charge</span><strong>{currency(estimate.travel)}</strong></div>
-              <div className="estimate-total"><span>Estimated first bill</span><strong>{currency(estimate.firstBill)}</strong></div>
-              <div className="estimate-row muted"><span>Estimated recurring monthly after first bill</span><strong>{currency(estimate.monthlyWithTravel)}</strong></div>
-            </>
-          ) : (
-            <>
-              <div className="estimate-row"><span>Estimated cleanup total</span><strong>{currency(estimate.oneTime)}</strong></div>
-              <div className="estimate-row"><span>Travel charge</span><strong>{currency(estimate.travel)}</strong></div>
-              <div className="estimate-total"><span>Estimated total</span><strong>{currency(estimate.totalNow)}</strong></div>
-            </>
-          )}
+          <label>
+            Restocking
+            <select value={form.restocking} onChange={e => update('restocking', e.target.value)}>
+              <option value="check-report">Check supplies and report low items</option>
+              <option value="restock-on-site">Restock using supplies already on-site</option>
+              <option value="notify-before">Notify host before replacing anything</option>
+              <option value="setup-system">Help set up a restocking system</option>
+            </select>
+          </label>
 
-          <button className="button button-primary full-button" type="button" onClick={sendEstimate} disabled={sending}>
-            {sending ? 'Sending...' : 'Send Estimate to Customer and Me'}
-          </button>
-          {sendMessage ? <div className="status-message">{sendMessage}</div> : null}
+          <label>
+            Extra trash removal needed?
+            <select value={form.trashRemoval} onChange={e => update('trashRemoval', e.target.value)}>
+              <option value="false">No</option>
+              <option value="true">Yes</option>
+            </select>
+          </label>
+        </div>
+      </div>
 
-          <ul className="policy-list">
-            <li>Monthly statements available for recurring service.</li>
-            <li>Payment due within 10 days of billing.</li>
-            <li>Late fee begins after day 10.</li>
-            <li>Service may pause on the next scheduled visit if past due.</li>
-            <li>Contracts are sent after review and verification.</li>
-          </ul>
-        </aside>
+      <div className="question-block">
+        <h3>Rental Add-Ons</h3>
+        <ServiceCheckboxes selected={form.serviceSelections} toggleService={toggleService} filter={[
+          'trashBinService',
+          'exteriorWindowCleaning',
+          'curbAppealDetail',
+          'propertyPhotoUpdates',
+          'minorRepairCoordination',
+          'sprinklerSupport',
+          'shrubMaintenance',
+          'yardCleanup'
+        ]} />
+      </div>
+    </>
+  )
+}
 
-        <section className="panel" id="contact">
-          <h2>Request property care</h2>
-          <p>Prefer to skip the estimate builder? Reach out by text, call, or email and we’ll review your property care needs with you.</p>
-          <div className="contact-grid">
-            <a className="contact-card" href={`tel:${PHONE_LINK}`}>
-              <strong>Call</strong>
-              <span>{PHONE_DISPLAY}</span>
-            </a>
-            <a className="contact-card" href={`sms:${PHONE_LINK}`}>
-              <strong>Text</strong>
-              <span>{PHONE_DISPLAY}</span>
-            </a>
-            <a className="contact-card" href={`mailto:${PUBLIC_EMAIL}`}>
-              <strong>Email</strong>
-              <span>{PUBLIC_EMAIL}</span>
-            </a>
-          </div>
-        </section>
-      </main>
+function AlaCarteQuestions({ form, toggleService }) {
+  return (
+    <div className="question-block">
+      <h3>Individual Services</h3>
+      <p className="small-copy">Choose the individual services you need. Larger or heavier work may be adjusted after review.</p>
+      <ServiceCheckboxes selected={form.serviceSelections} toggleService={toggleService} />
     </div>
   )
+}
+
+function ServiceCheckboxes({ selected, toggleService, filter }) {
+  const services = filter
+    ? serviceOptions.filter(option => filter.includes(option.key))
+    : serviceOptions
+
+  return (
+    <div className="service-check-grid">
+      {services.map(option => (
+        <label className="service-check" key={option.key}>
+          <input
+            type="checkbox"
+            checked={selected.includes(option.key)}
+            onChange={() => toggleService(option.key)}
+          />
+          <span>
+            <strong>{option.label}</strong>
+            <small>Starting at {currency(option.price)}</small>
+          </span>
+        </label>
+      ))}
+    </div>
+  )
+}
+
+function buildEstimate(form) {
+  const lines = []
+  let subtotal = 0
+  let reviewRequired = false
+  const area = serviceAreas[form.serviceArea] || serviceAreas.saltLakeCounty
+
+  if (form.selectedPlan === 'basic') {
+    const base = basicPrices[form.frequency]?.[form.propertySize] || 55
+    subtotal += base
+    lines.push({ label: 'Basic lawn care', value: currency(base) })
+
+    if (toBoolean(form.overgrown)) {
+      subtotal += addOnPrices.overgrownFirstCut
+      lines.push({ label: 'Overgrown first cut', value: currency(addOnPrices.overgrownFirstCut) })
+    }
+
+    if (toBoolean(form.petWaste)) {
+      subtotal += addOnPrices.petWaste
+      lines.push({ label: 'Pet waste cleanup', value: currency(addOnPrices.petWaste) })
+    }
+
+    if (form.propertySize === 'largePlus') reviewRequired = true
+  }
+
+  if (form.selectedPlan === 'exterior') {
+    const base = exteriorPrices[form.frequency]?.[form.propertySize] || 95
+    subtotal += base
+    lines.push({ label: 'Full exterior care', value: currency(base) })
+
+    if (toBoolean(form.overgrown)) {
+      subtotal += addOnPrices.overgrownFirstCut
+      lines.push({ label: 'Overgrown / heavy weed adjustment', value: currency(addOnPrices.overgrownFirstCut) })
+    }
+
+    if (toBoolean(form.petWaste)) {
+      subtotal += addOnPrices.petWaste
+      lines.push({ label: 'Pet waste cleanup', value: currency(addOnPrices.petWaste) })
+    }
+
+    if (form.propertySize === 'largePlus') reviewRequired = true
+  }
+
+  if (form.selectedPlan === 'rental') {
+    const base = rentalPrices[form.rentalSize] || 145
+    subtotal += base
+    lines.push({ label: 'Rental / short-term rental reset', value: currency(base) })
+
+    if (form.sameDay === 'sameDay') {
+      subtotal += addOnPrices.sameDay
+      lines.push({ label: 'Same-day turnover', value: currency(addOnPrices.sameDay) })
+    }
+
+    if (form.sameDay === 'tightWindow') {
+      subtotal += addOnPrices.tightWindow
+      lines.push({ label: 'Tight turnover window', value: currency(addOnPrices.tightWindow) })
+    }
+
+    if (form.sameDay === 'emergencyBackup') {
+      subtotal += addOnPrices.emergencyBackup
+      lines.push({ label: 'Emergency / backup cleaner request', value: `${currency(addOnPrices.emergencyBackup)}+` })
+      reviewRequired = true
+    }
+
+    if (form.laundry === 'onsite') {
+      subtotal += addOnPrices.laundryOnSite
+      lines.push({ label: 'On-site laundry', value: currency(addOnPrices.laundryOnSite) })
+    }
+
+    if (form.laundry === 'full') {
+      subtotal += addOnPrices.laundryFull
+      lines.push({ label: 'Full laundry service', value: `${currency(addOnPrices.laundryFull)}+` })
+      reviewRequired = true
+    }
+
+    if (form.laundry === 'offsite') {
+      lines.push({ label: 'Off-site laundry', value: 'Review required' })
+      reviewRequired = true
+    }
+
+    if (form.restocking === 'restock-on-site') {
+      subtotal += addOnPrices.restockOnSite
+      lines.push({ label: 'Restock from on-site supplies', value: currency(addOnPrices.restockOnSite) })
+    }
+
+    if (form.restocking === 'setup-system') {
+      lines.push({ label: 'Restocking system setup', value: 'Review required' })
+      reviewRequired = true
+    }
+
+    if (toBoolean(form.trashRemoval)) {
+      subtotal += addOnPrices.trashRemoval
+      lines.push({ label: 'Extra trash removal', value: currency(addOnPrices.trashRemoval) })
+    }
+
+    if (form.rentalSize === 'fivePlus') reviewRequired = true
+  }
+
+  const selectedAddOns = serviceOptions.filter(option => form.serviceSelections.includes(option.key))
+
+  selectedAddOns.forEach(option => {
+    subtotal += option.price
+    lines.push({ label: option.label, value: option.key === 'trashBinService' ? `${currency(option.price)} / visit` : `${currency(option.price)}+` })
+
+    if (['minorRepairCoordination', 'sprinklerSupport', 'yardCleanup', 'seasonalCleanup', 'exteriorWindowCleaning'].includes(option.key)) {
+      reviewRequired = true
+    }
+  })
+
+  if (area.review) {
+    lines.push({ label: 'Service area', value: 'Review required' })
+    reviewRequired = true
+  } else {
+    if (area.adjustment > 0) {
+      subtotal += area.adjustment
+      lines.push({ label: `${area.label} service-area adjustment`, value: currency(area.adjustment) })
+    }
+
+    if (area.minimum > 0 && subtotal < area.minimum) {
+      lines.push({ label: `${area.label} minimum visit`, value: currency(area.minimum) })
+      subtotal = area.minimum
+    }
+  }
+
+  const summary = reviewRequired
+    ? 'Some selected services require review before the final price is confirmed.'
+    : 'Final price is subject to review before service is confirmed.'
+
+  return {
+    subtotal,
+    total: subtotal,
+    lines,
+    reviewRequired,
+    summary,
+    serviceArea: area.label
+  }
 }
