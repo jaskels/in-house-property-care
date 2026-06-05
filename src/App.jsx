@@ -5,66 +5,21 @@ const PHONE_LINK = '8018980281'
 const PUBLIC_EMAIL = 'ihiutah@gmail.com'
 
 const serviceAreas = {
-  saltLakeCounty: {
-    label: 'Salt Lake County',
-    adjustment: 0,
-    minimum: 0,
-    review: false
-  },
-  jeremyRanch: {
-    label: 'Jeremy Ranch / Kimball Junction',
-    adjustment: 45,
-    minimum: 175,
-    review: false
-  },
-  parkCity: {
-    label: 'Park City',
-    adjustment: 65,
-    minimum: 225,
-    review: false
-  },
-  deerValley: {
-    label: 'Deer Valley',
-    adjustment: 85,
-    minimum: 250,
-    review: false
-  },
-  otherMountain: {
-    label: 'Other mountain / vacation property area',
-    adjustment: 0,
-    minimum: 0,
-    review: true
-  }
+  saltLakeCounty: { label: 'Salt Lake County', adjustment: 0, minimum: 0, review: false },
+  jeremyRanch: { label: 'Jeremy Ranch / Kimball Junction', adjustment: 45, minimum: 175, review: false },
+  parkCity: { label: 'Park City', adjustment: 65, minimum: 225, review: false },
+  deerValley: { label: 'Deer Valley', adjustment: 85, minimum: 250, review: false },
+  otherMountain: { label: 'Other mountain / vacation property area', adjustment: 0, minimum: 0, review: true }
 }
 
 const basicPrices = {
-  weekly: {
-    small: 55,
-    medium: 65,
-    large: 85,
-    largePlus: 110
-  },
-  biweekly: {
-    small: 70,
-    medium: 85,
-    large: 110,
-    largePlus: 140
-  }
+  weekly: { small: 55, medium: 65, large: 85, largePlus: 110 },
+  biweekly: { small: 70, medium: 85, large: 110, largePlus: 140 }
 }
 
 const exteriorPrices = {
-  weekly: {
-    small: 95,
-    medium: 125,
-    large: 165,
-    largePlus: 210
-  },
-  biweekly: {
-    small: 125,
-    medium: 160,
-    large: 210,
-    largePlus: 275
-  }
+  weekly: { small: 95, medium: 125, large: 165, largePlus: 210 },
+  biweekly: { small: 125, medium: 160, large: 210, largePlus: 275 }
 }
 
 const rentalPrices = {
@@ -134,9 +89,9 @@ const galleryPhotos = [
   }
 ]
 
-const serviceOptions = [
+const addOnServices = [
   { key: 'shrubMaintenance', label: 'Shrub trimming / shrub maintenance', price: addOnPrices.shrubMaintenance },
-  { key: 'yardCleanup', label: 'Yard cleanup', price: addOnPrices.yardCleanup },
+  { key: 'yardCleanup', label: 'Yard cleanup / weeding cleanup', price: addOnPrices.yardCleanup },
   { key: 'seasonalCleanup', label: 'Seasonal cleanup', price: addOnPrices.seasonalCleanup },
   { key: 'exteriorWindowCleaning', label: 'Exterior window cleaning', price: addOnPrices.exteriorWindowCleaning },
   { key: 'curbAppealDetail', label: 'Curb Appeal & Exterior Detail', price: addOnPrices.curbAppealDetail },
@@ -144,6 +99,12 @@ const serviceOptions = [
   { key: 'minorRepairCoordination', label: 'Minor Repair Coordination', price: addOnPrices.minorRepairCoordination },
   { key: 'sprinklerSupport', label: 'Sprinkler Adjustment & Minor Irrigation Support', price: addOnPrices.sprinklerSupport },
   { key: 'trashBinService', label: 'Trash Bin / Curbside Service', price: addOnPrices.trashBinService }
+]
+
+const buildYourOwnServices = [
+  { key: 'basicLawnService', label: 'Basic lawn service', type: 'basicLawn' },
+  { key: 'fullExteriorService', label: 'Full exterior care service', type: 'fullExterior' },
+  ...addOnServices
 ]
 
 function currency(value) {
@@ -191,11 +152,16 @@ async function readPhotoFiles(fileList) {
 }
 
 export default function App() {
-  const [page, setPage] = useState(getPath() === '/estimate' ? 'estimate' : 'home')
+  const [page, setPage] = useState(() => {
+    const path = getPath()
+    if (path === '/estimate') return 'estimate'
+    if (path === '/gallery') return 'gallery'
+    return 'home'
+  })
 
-  function goToEstimate() {
-    setPage('estimate')
-    window.history.pushState({}, '', '/estimate')
+  function goToPage(nextPage, path = '/') {
+    setPage(nextPage)
+    window.history.pushState({}, '', path)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -214,25 +180,36 @@ export default function App() {
 
   return (
     <div className="site-shell">
-      <Header goHome={goHome} goToEstimate={goToEstimate} />
+      <Header
+        goHome={goHome}
+        goToEstimate={() => goToPage('estimate', '/estimate')}
+        goToGallery={() => goToPage('gallery', '/gallery')}
+      />
 
-      {page === 'estimate' ? (
-        <EstimatePage />
-      ) : (
-        <HomePage goToEstimate={goToEstimate} goHome={goHome} />
+      {page === 'estimate' && <EstimatePage />}
+      {page === 'gallery' && <GalleryPage goToEstimate={() => goToPage('estimate', '/estimate')} />}
+      {page === 'home' && (
+        <HomePage
+          goToEstimate={() => goToPage('estimate', '/estimate')}
+          goToGallery={() => goToPage('gallery', '/gallery')}
+        />
       )}
 
-      <a className="mobile-estimate-button" href="/estimate" onClick={event => {
-        event.preventDefault()
-        goToEstimate()
-      }}>
+      <a
+        className="mobile-estimate-button"
+        href="/estimate"
+        onClick={event => {
+          event.preventDefault()
+          goToPage('estimate', '/estimate')
+        }}
+      >
         Request Free Estimate
       </a>
     </div>
   )
 }
 
-function Header({ goHome, goToEstimate }) {
+function Header({ goHome, goToEstimate, goToGallery }) {
   return (
     <header className="topbar">
       <button className="brand-button" type="button" onClick={() => goHome()}>
@@ -242,14 +219,14 @@ function Header({ goHome, goToEstimate }) {
       <nav className="nav-links" aria-label="Main navigation">
         <button type="button" onClick={() => goHome()}>Home</button>
         <button type="button" onClick={() => goHome('services')}>Services</button>
-        <button type="button" onClick={() => goHome('gallery')}>Gallery</button>
+        <button type="button" onClick={goToGallery}>Gallery</button>
         <button className="nav-cta" type="button" onClick={goToEstimate}>Request Free Estimate</button>
       </nav>
     </header>
   )
 }
 
-function HomePage({ goToEstimate }) {
+function HomePage({ goToEstimate, goToGallery }) {
   return (
     <main>
       <section className="hero-section">
@@ -257,8 +234,8 @@ function HomePage({ goToEstimate }) {
           <div className="eyebrow">Based in West Jordan • Serving Salt Lake County</div>
           <h1>Reliable Property Care for Homes, Rentals &amp; Short-Term Stays</h1>
           <p className="lead">
-            Helping homeowners, rental property owners, Airbnb hosts, VRBO hosts, and vacation home owners keep properties
-            clean, maintained, guest-ready, and looking their best.
+            Helping Airbnb hosts, VRBO hosts, rental property owners, and vacation homeowners keep properties clean,
+            maintained, guest-ready, and looking their best.
           </p>
           <p className="service-area-line">
             Based in West Jordan and serving Salt Lake County, with short-term rental and vacation property care available
@@ -282,8 +259,8 @@ function HomePage({ goToEstimate }) {
           <span className="eyebrow">Services</span>
           <h2>Choose a Care Plan or Individual Service</h2>
           <p>
-            Choose a recurring care plan or request individual property care services as needed. We’ll review your property
-            details, photos, and service needs to provide a fair, clear estimate.
+            Choose a recurring care plan, build your own service request, or add individual services as needed.
+            We’ll review your property details, photos, and service needs before confirming final pricing.
           </p>
         </div>
 
@@ -314,14 +291,14 @@ function HomePage({ goToEstimate }) {
 
       <section className="section-panel service-summary">
         <div>
-          <span className="eyebrow">Individual Services</span>
-          <h2>À La Carte Property Care</h2>
+          <span className="eyebrow">Flexible Services</span>
+          <h2>Build Your Own / Add-On Services</h2>
           <p>
-            Need one service instead of a plan? Request mowing, yard cleanup, shrub trimming, exterior window cleaning,
-            curb appeal detail, sprinkler support, trash bin service, or property photo updates.
+            Not ready for a full plan? Build your own request with individual services like yard cleanup, shrub trimming,
+            exterior window cleaning, curb appeal detail, sprinkler support, trash bin service, or property photo updates.
           </p>
         </div>
-        <button className="button button-primary" type="button" onClick={goToEstimate}>Request Free Estimate</button>
+        <button className="button button-primary" type="button" onClick={goToEstimate}>Build Your Estimate</button>
       </section>
 
       <section className="section-panel compact" id="gallery">
@@ -339,6 +316,10 @@ function HomePage({ goToEstimate }) {
             </figure>
           ))}
         </div>
+
+        <div className="section-footer-action">
+          <button className="button button-secondary" type="button" onClick={goToGallery}>View Full Gallery</button>
+        </div>
       </section>
 
       <section className="section-panel contact-panel">
@@ -353,6 +334,35 @@ function HomePage({ goToEstimate }) {
         <div className="contact-actions">
           <button className="button button-primary" type="button" onClick={goToEstimate}>Request Free Estimate</button>
           <a className="button button-secondary" href={`sms:${PHONE_LINK}`}>Text {PHONE_DISPLAY}</a>
+        </div>
+      </section>
+    </main>
+  )
+}
+
+function GalleryPage({ goToEstimate }) {
+  return (
+    <main>
+      <section className="section-panel compact">
+        <div className="section-heading">
+          <span className="eyebrow">Gallery</span>
+          <h1>Property Care Gallery</h1>
+          <p>
+            A growing collection of lawn care, cleanup, exterior detail, and property care work. More project photos will be added as new work is completed.
+          </p>
+        </div>
+
+        <div className="gallery-grid gallery-grid-large">
+          {galleryPhotos.map(photo => (
+            <figure className="gallery-card" key={photo.src}>
+              <img src={photo.src} alt={photo.alt} loading="lazy" />
+              <figcaption>{photo.title}</figcaption>
+            </figure>
+          ))}
+        </div>
+
+        <div className="section-footer-action">
+          <button className="button button-primary" type="button" onClick={goToEstimate}>Request Free Estimate</button>
         </div>
       </section>
     </main>
@@ -387,8 +397,6 @@ function EstimatePage() {
     mowingArea: 'front-and-back',
     overgrown: 'false',
     petWaste: 'false',
-    edging: 'true',
-    blowOff: 'true',
     photoUpdates: 'false',
     accessNotes: '',
     rentalSize: 'studio',
@@ -399,7 +407,6 @@ function EstimatePage() {
     laundry: 'clean-on-site',
     restocking: 'check-report',
     trashRemoval: 'false',
-    trashBinService: 'false',
     serviceSelections: [],
     notes: ''
   })
@@ -410,6 +417,14 @@ function EstimatePage() {
 
   function update(name, value) {
     setForm(prev => ({ ...prev, [name]: value }))
+  }
+
+  function setPlan(plan) {
+    setForm(prev => ({
+      ...prev,
+      selectedPlan: plan,
+      serviceSelections: []
+    }))
   }
 
   function toggleService(key) {
@@ -431,6 +446,11 @@ function EstimatePage() {
 
     if (!form.contactName.trim() || !form.phone.trim() || !form.email.trim() || !form.propertyAddress.trim()) {
       setSendMessage('Please enter your name, phone, email, and property address before submitting.')
+      return
+    }
+
+    if (form.selectedPlan === 'build' && form.serviceSelections.length === 0) {
+      setSendMessage('Please choose at least one Build Your Own / Add-On Service before submitting.')
       return
     }
 
@@ -466,15 +486,15 @@ function EstimatePage() {
           <span className="eyebrow">Free Estimate</span>
           <h1>Request a Free Property Care Estimate</h1>
           <p>
-            Choose a plan, answer a few direct questions, and get an estimated number. Final pricing is reviewed before service is confirmed.
+            Choose a plan or build your own service request. The estimator shows an estimated total, and final pricing is reviewed before service is confirmed.
           </p>
         </div>
 
         <div className="plan-choice-grid">
-          <ChoiceButton active={form.selectedPlan === 'basic'} onClick={() => update('selectedPlan', 'basic')} title="Basic Lawn Care" text="Mowing, edging, and blow-off" />
-          <ChoiceButton active={form.selectedPlan === 'exterior'} onClick={() => update('selectedPlan', 'exterior')} title="Full Exterior Care" text="Mowing, weed control, exterior care" />
-          <ChoiceButton active={form.selectedPlan === 'rental'} onClick={() => update('selectedPlan', 'rental')} title="Rental / Short-Term Rental" text="Turnovers and guest-ready resets" />
-          <ChoiceButton active={form.selectedPlan === 'alacarte'} onClick={() => update('selectedPlan', 'alacarte')} title="Individual Service" text="Add-on or one-time property care" />
+          <ChoiceButton active={form.selectedPlan === 'basic'} onClick={() => setPlan('basic')} title="Basic Lawn Care" text="Mowing, edging, and blow-off" />
+          <ChoiceButton active={form.selectedPlan === 'exterior'} onClick={() => setPlan('exterior')} title="Full Exterior Care" text="Mowing, weed control, exterior care" />
+          <ChoiceButton active={form.selectedPlan === 'rental'} onClick={() => setPlan('rental')} title="Rental / Short-Term Rental" text="Turnovers and guest-ready resets" />
+          <ChoiceButton active={form.selectedPlan === 'build'} onClick={() => setPlan('build')} title="Build Your Own / Add-On Services" text="Choose only the services you need" />
         </div>
 
         <div className="form-grid">
@@ -536,8 +556,8 @@ function EstimatePage() {
           <RentalQuestions form={form} update={update} toggleService={toggleService} />
         )}
 
-        {form.selectedPlan === 'alacarte' && (
-          <AlaCarteQuestions form={form} toggleService={toggleService} />
+        {form.selectedPlan === 'build' && (
+          <BuildYourOwnQuestions form={form} update={update} toggleService={toggleService} />
         )}
 
         <div className="form-grid">
@@ -578,9 +598,9 @@ function EstimatePage() {
       </section>
 
       <aside className="section-panel estimate-summary">
-        <span className="eyebrow">Estimated Number</span>
-        <h2>{estimate.reviewRequired ? 'Review Required' : currency(estimate.total)}</h2>
-        <p>{estimate.summary}</p>
+        <span className="eyebrow">Estimated Total</span>
+        <h2>{currency(estimate.total)}</h2>
+        <p>{estimate.reviewRequired ? `${estimate.summary} Final pricing still requires review.` : estimate.summary}</p>
 
         <div className="estimate-lines">
           {estimate.lines.map(line => (
@@ -589,6 +609,11 @@ function EstimatePage() {
               <strong>{line.value}</strong>
             </div>
           ))}
+
+          <div className="estimate-row estimate-total-row">
+            <span>Estimated Total</span>
+            <strong>{currency(estimate.total)}</strong>
+          </div>
         </div>
 
         <div className="disclaimer">
@@ -686,16 +711,16 @@ function LawnExteriorQuestions({ form, update, selectedPlan, toggleService }) {
 
       {showExteriorAddOns && (
         <div className="question-block">
-          <h3>Exterior Add-Ons</h3>
+          <h3>Add-On Services</h3>
           <p className="small-copy">Normal weed control is included. Larger cleanup, shrubs, seasonal work, and irrigation support are added when needed.</p>
-          <ServiceCheckboxes selected={form.serviceSelections} toggleService={toggleService} filter={[
+          <ServiceCheckboxes selected={form.serviceSelections} toggleService={toggleService} services={addOnServices.filter(service => [
             'shrubMaintenance',
             'yardCleanup',
             'seasonalCleanup',
             'curbAppealDetail',
             'sprinklerSupport',
             'exteriorWindowCleaning'
-          ]} />
+          ].includes(service.key))} />
         </div>
       )}
     </>
@@ -781,8 +806,8 @@ function RentalQuestions({ form, update, toggleService }) {
       </div>
 
       <div className="question-block">
-        <h3>Rental Add-Ons</h3>
-        <ServiceCheckboxes selected={form.serviceSelections} toggleService={toggleService} filter={[
+        <h3>Add-On Services</h3>
+        <ServiceCheckboxes selected={form.serviceSelections} toggleService={toggleService} services={addOnServices.filter(service => [
           'trashBinService',
           'exteriorWindowCleaning',
           'curbAppealDetail',
@@ -791,27 +816,47 @@ function RentalQuestions({ form, update, toggleService }) {
           'sprinklerSupport',
           'shrubMaintenance',
           'yardCleanup'
-        ]} />
+        ].includes(service.key))} />
       </div>
     </>
   )
 }
 
-function AlaCarteQuestions({ form, toggleService }) {
+function BuildYourOwnQuestions({ form, update, toggleService }) {
   return (
-    <div className="question-block">
-      <h3>Individual Services</h3>
-      <p className="small-copy">Choose the individual services you need. Larger or heavier work may be adjusted after review.</p>
-      <ServiceCheckboxes selected={form.serviceSelections} toggleService={toggleService} />
-    </div>
+    <>
+      <div className="question-block">
+        <h3>Build Your Own / Add-On Services</h3>
+        <p className="small-copy">
+          Choose only the services you need. This option does not force you into a care plan.
+        </p>
+
+        <div className="form-grid">
+          <label>
+            Property size
+            <select value={form.propertySize} onChange={e => update('propertySize', e.target.value)}>
+              {Object.entries(propertySizes).map(([key, label]) => (
+                <option key={key} value={key}>{label}</option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            Frequency, if recurring
+            <select value={form.frequency} onChange={e => update('frequency', e.target.value)}>
+              <option value="weekly">Weekly</option>
+              <option value="biweekly">Every other week</option>
+            </select>
+          </label>
+        </div>
+
+        <ServiceCheckboxes selected={form.serviceSelections} toggleService={toggleService} services={buildYourOwnServices} />
+      </div>
+    </>
   )
 }
 
-function ServiceCheckboxes({ selected, toggleService, filter }) {
-  const services = filter
-    ? serviceOptions.filter(option => filter.includes(option.key))
-    : serviceOptions
-
+function ServiceCheckboxes({ selected, toggleService, services }) {
   return (
     <div className="service-check-grid">
       {services.map(option => (
@@ -823,12 +868,40 @@ function ServiceCheckboxes({ selected, toggleService, filter }) {
           />
           <span>
             <strong>{option.label}</strong>
-            <small>Starting at {currency(option.price)}</small>
+            <small>{getServicePriceText(option)}</small>
           </span>
         </label>
       ))}
     </div>
   )
+}
+
+function getServicePriceText(option) {
+  if (option.type === 'basicLawn') return 'Based on size and frequency'
+  if (option.type === 'fullExterior') return 'Based on size and frequency'
+  if (option.key === 'trashBinService') return `Starting at ${currency(option.price)} / visit`
+  return `Starting at ${currency(option.price)}`
+}
+
+function addServiceLine(lines, label, value) {
+  lines.push({ label, value })
+}
+
+function addSelectedAddOns(form, lines) {
+  let subtotal = 0
+  let reviewRequired = false
+  const selected = addOnServices.filter(option => form.serviceSelections.includes(option.key))
+
+  selected.forEach(option => {
+    subtotal += option.price
+    addServiceLine(lines, option.label, option.key === 'trashBinService' ? `${currency(option.price)} / visit` : `${currency(option.price)}+`)
+
+    if (['minorRepairCoordination', 'sprinklerSupport', 'yardCleanup', 'seasonalCleanup', 'exteriorWindowCleaning'].includes(option.key)) {
+      reviewRequired = true
+    }
+  })
+
+  return { subtotal, reviewRequired }
 }
 
 function buildEstimate(form) {
@@ -840,16 +913,16 @@ function buildEstimate(form) {
   if (form.selectedPlan === 'basic') {
     const base = basicPrices[form.frequency]?.[form.propertySize] || 55
     subtotal += base
-    lines.push({ label: 'Basic lawn care', value: currency(base) })
+    addServiceLine(lines, 'Basic lawn care', currency(base))
 
     if (toBoolean(form.overgrown)) {
       subtotal += addOnPrices.overgrownFirstCut
-      lines.push({ label: 'Overgrown first cut', value: currency(addOnPrices.overgrownFirstCut) })
+      addServiceLine(lines, 'Overgrown first cut', currency(addOnPrices.overgrownFirstCut))
     }
 
     if (toBoolean(form.petWaste)) {
       subtotal += addOnPrices.petWaste
-      lines.push({ label: 'Pet waste cleanup', value: currency(addOnPrices.petWaste) })
+      addServiceLine(lines, 'Pet waste cleanup', currency(addOnPrices.petWaste))
     }
 
     if (form.propertySize === 'largePlus') reviewRequired = true
@@ -858,16 +931,16 @@ function buildEstimate(form) {
   if (form.selectedPlan === 'exterior') {
     const base = exteriorPrices[form.frequency]?.[form.propertySize] || 95
     subtotal += base
-    lines.push({ label: 'Full exterior care', value: currency(base) })
+    addServiceLine(lines, 'Full exterior care', currency(base))
 
     if (toBoolean(form.overgrown)) {
       subtotal += addOnPrices.overgrownFirstCut
-      lines.push({ label: 'Overgrown / heavy weed adjustment', value: currency(addOnPrices.overgrownFirstCut) })
+      addServiceLine(lines, 'Overgrown / heavy weed adjustment', currency(addOnPrices.overgrownFirstCut))
     }
 
     if (toBoolean(form.petWaste)) {
       subtotal += addOnPrices.petWaste
-      lines.push({ label: 'Pet waste cleanup', value: currency(addOnPrices.petWaste) })
+      addServiceLine(lines, 'Pet waste cleanup', currency(addOnPrices.petWaste))
     }
 
     if (form.propertySize === 'largePlus') reviewRequired = true
@@ -876,82 +949,95 @@ function buildEstimate(form) {
   if (form.selectedPlan === 'rental') {
     const base = rentalPrices[form.rentalSize] || 145
     subtotal += base
-    lines.push({ label: 'Rental / short-term rental reset', value: currency(base) })
+    addServiceLine(lines, 'Rental / short-term rental reset', currency(base))
 
     if (form.sameDay === 'sameDay') {
       subtotal += addOnPrices.sameDay
-      lines.push({ label: 'Same-day turnover', value: currency(addOnPrices.sameDay) })
+      addServiceLine(lines, 'Same-day turnover', currency(addOnPrices.sameDay))
     }
 
     if (form.sameDay === 'tightWindow') {
       subtotal += addOnPrices.tightWindow
-      lines.push({ label: 'Tight turnover window', value: currency(addOnPrices.tightWindow) })
+      addServiceLine(lines, 'Tight turnover window', currency(addOnPrices.tightWindow))
     }
 
     if (form.sameDay === 'emergencyBackup') {
       subtotal += addOnPrices.emergencyBackup
-      lines.push({ label: 'Emergency / backup cleaner request', value: `${currency(addOnPrices.emergencyBackup)}+` })
+      addServiceLine(lines, 'Emergency / backup cleaner request', `${currency(addOnPrices.emergencyBackup)}+`)
       reviewRequired = true
     }
 
     if (form.laundry === 'onsite') {
       subtotal += addOnPrices.laundryOnSite
-      lines.push({ label: 'On-site laundry', value: currency(addOnPrices.laundryOnSite) })
+      addServiceLine(lines, 'On-site laundry', currency(addOnPrices.laundryOnSite))
     }
 
     if (form.laundry === 'full') {
       subtotal += addOnPrices.laundryFull
-      lines.push({ label: 'Full laundry service', value: `${currency(addOnPrices.laundryFull)}+` })
+      addServiceLine(lines, 'Full laundry service', `${currency(addOnPrices.laundryFull)}+`)
       reviewRequired = true
     }
 
     if (form.laundry === 'offsite') {
-      lines.push({ label: 'Off-site laundry', value: 'Review required' })
+      addServiceLine(lines, 'Off-site laundry', 'Review required')
       reviewRequired = true
     }
 
     if (form.restocking === 'restock-on-site') {
       subtotal += addOnPrices.restockOnSite
-      lines.push({ label: 'Restock from on-site supplies', value: currency(addOnPrices.restockOnSite) })
+      addServiceLine(lines, 'Restock from on-site supplies', currency(addOnPrices.restockOnSite))
     }
 
     if (form.restocking === 'setup-system') {
-      lines.push({ label: 'Restocking system setup', value: 'Review required' })
+      addServiceLine(lines, 'Restocking system setup', 'Review required')
       reviewRequired = true
     }
 
     if (toBoolean(form.trashRemoval)) {
       subtotal += addOnPrices.trashRemoval
-      lines.push({ label: 'Extra trash removal', value: currency(addOnPrices.trashRemoval) })
+      addServiceLine(lines, 'Extra trash removal', currency(addOnPrices.trashRemoval))
     }
 
     if (form.rentalSize === 'fivePlus') reviewRequired = true
   }
 
-  const selectedAddOns = serviceOptions.filter(option => form.serviceSelections.includes(option.key))
-
-  selectedAddOns.forEach(option => {
-    subtotal += option.price
-    lines.push({ label: option.label, value: option.key === 'trashBinService' ? `${currency(option.price)} / visit` : `${currency(option.price)}+` })
-
-    if (['minorRepairCoordination', 'sprinklerSupport', 'yardCleanup', 'seasonalCleanup', 'exteriorWindowCleaning'].includes(option.key)) {
-      reviewRequired = true
+  if (form.selectedPlan === 'build') {
+    if (form.serviceSelections.includes('basicLawnService')) {
+      const base = basicPrices[form.frequency]?.[form.propertySize] || 55
+      subtotal += base
+      addServiceLine(lines, 'Basic lawn service', currency(base))
     }
-  })
+
+    if (form.serviceSelections.includes('fullExteriorService')) {
+      const base = exteriorPrices[form.frequency]?.[form.propertySize] || 95
+      subtotal += base
+      addServiceLine(lines, 'Full exterior care service', currency(base))
+    }
+
+    if (form.propertySize === 'largePlus') reviewRequired = true
+  }
+
+  const addOns = addSelectedAddOns(form, lines)
+  subtotal += addOns.subtotal
+  if (addOns.reviewRequired) reviewRequired = true
 
   if (area.review) {
-    lines.push({ label: 'Service area', value: 'Review required' })
+    addServiceLine(lines, 'Service area', 'Review required')
     reviewRequired = true
   } else {
     if (area.adjustment > 0) {
       subtotal += area.adjustment
-      lines.push({ label: `${area.label} service-area adjustment`, value: currency(area.adjustment) })
+      addServiceLine(lines, `${area.label} service-area adjustment`, currency(area.adjustment))
     }
 
-    if (area.minimum > 0 && subtotal < area.minimum) {
-      lines.push({ label: `${area.label} minimum visit`, value: currency(area.minimum) })
+    if (area.minimum > 0 && subtotal < area.minimum && subtotal > 0) {
+      addServiceLine(lines, `${area.label} minimum visit`, currency(area.minimum))
       subtotal = area.minimum
     }
+  }
+
+  if (form.selectedPlan === 'build' && form.serviceSelections.length === 0) {
+    addServiceLine(lines, 'Build Your Own / Add-On Services', 'Choose services to estimate')
   }
 
   const summary = reviewRequired
