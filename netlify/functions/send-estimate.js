@@ -25,11 +25,15 @@ export async function handler(event) {
     const subject = `New Property Care Estimate Request - ${safeText(form.contactName)}`
     const details = buildDetails(form, estimate)
 
+    const estimatedTotal = estimate?.reviewRequired
+      ? `${currency(estimate?.total)} - final review required`
+      : currency(estimate?.total)
+
     const adminHtml = `
       <div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937">
         <h2 style="color:#a11c27;margin-bottom:8px;">New Property Care Estimate Request</h2>
         <p><strong>In House Property Care</strong> received a new estimate request from the website.</p>
-        <p><strong>Estimated number:</strong> ${estimate?.reviewRequired ? 'Review required' : currency(estimate?.total)}</p>
+        <p><strong>Estimated Total:</strong> ${estimatedTotal}</p>
         <p><strong>Important:</strong> This is an estimated quote based on the information provided. Final pricing may change after review of property size, condition, access, photos, timing, service needs, pet waste, trash, overgrowth, laundry, restocking, add-ons, or incomplete details.</p>
         ${details}
         <p style="margin-top:24px;">
@@ -44,7 +48,7 @@ export async function handler(event) {
         <h2 style="color:#a11c27;margin-bottom:8px;">In House Property Care</h2>
         <p>Thank you for requesting a property care estimate.</p>
         <p>We received your request and will review the property details before confirming final pricing or service availability.</p>
-        <p><strong>Estimated number:</strong> ${estimate?.reviewRequired ? 'Review required' : currency(estimate?.total)}</p>
+        <p><strong>Estimated Total:</strong> ${estimatedTotal}</p>
         <p><strong>Important:</strong> This is an estimated quote based on the information provided. Final pricing may change after review of property size, condition, access, photos, timing, service needs, pet waste, trash, overgrowth, laundry, restocking, add-ons, or incomplete details.</p>
         ${details}
         <p style="margin-top:24px;">
@@ -172,13 +176,18 @@ function buildDetails(form, estimate) {
     line('Property Address / City', form.propertyAddress),
     line('Service Area', labelMap(form.serviceArea)),
     line('Property Type', labelMap(form.propertyType)),
-    line('Selected Plan', labelMap(form.selectedPlan))
+    line('Selected Plan / Request Type', labelMap(form.selectedPlan))
   ]
+
+  if (form.selectedPlan === 'basic' || form.selectedPlan === 'exterior' || form.selectedPlan === 'build') {
+    rows.push(
+      line('Property Size', labelMap(form.propertySize)),
+      line('Frequency', labelMap(form.frequency))
+    )
+  }
 
   if (form.selectedPlan === 'basic' || form.selectedPlan === 'exterior') {
     rows.push(
-      line('Property Size', labelMap(form.propertySize)),
-      line('Frequency', labelMap(form.frequency)),
       line('Mowing Area', labelMap(form.mowingArea)),
       line('Lawn Currently Overgrown', yesNo(form.overgrown)),
       line('Pet Waste Cleanup Needed', yesNo(form.petWaste)),
@@ -200,13 +209,14 @@ function buildDetails(form, estimate) {
   }
 
   rows.push(
-    listLine('Selected Add-On Services', selectedAddOnLabels(form.serviceSelections)),
+    listLine('Selected Services / Add-Ons', selectedAddOnLabels(form.serviceSelections)),
     line('Access / Gate / Fence / Special Instructions', form.accessNotes),
     line('Notes', form.notes)
   )
 
   if (estimate?.lines?.length) {
-    rows.push(line('Estimated Number', estimate.reviewRequired ? 'Review required' : currency(estimate.total)))
+    rows.push(line('Estimated Total', estimate.reviewRequired ? `${currency(estimate.total)} - final review required` : currency(estimate.total)))
+
     estimate.lines.forEach(item => {
       rows.push(line(`Estimate Line - ${item.label}`, item.value))
     })
@@ -217,8 +227,10 @@ function buildDetails(form, estimate) {
 
 function selectedAddOnLabels(selections) {
   const labels = {
+    basicLawnService: 'Basic lawn service',
+    fullExteriorService: 'Full exterior care service',
     shrubMaintenance: 'Shrub trimming / shrub maintenance',
-    yardCleanup: 'Yard cleanup',
+    yardCleanup: 'Yard cleanup / weeding cleanup',
     seasonalCleanup: 'Seasonal cleanup',
     exteriorWindowCleaning: 'Exterior window cleaning',
     curbAppealDetail: 'Curb Appeal & Exterior Detail',
@@ -258,7 +270,7 @@ function labelMap(value) {
     basic: 'Basic Lawn Care Plan',
     exterior: 'Full Exterior Care Plan',
     rental: 'Rental / Short-Term Rental Care Plan',
-    alacarte: 'Individual / À La Carte Service',
+    build: 'Build Your Own / Add-On Services',
 
     small: 'Small property',
     medium: 'Medium property',
