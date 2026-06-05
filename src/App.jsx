@@ -1,5 +1,10 @@
 import { useMemo, useState } from 'react'
 
+import exteriorPropertyCare from './assets/exterior-property-care.jpg'
+import landscapeMaintenance from './assets/landscape-maintenance.jpg'
+import lawnCareYardMaintenance from './assets/lawn-care-yard-maintenance.jpg'
+import springFallCleanup from './assets/spring-fall-cleanup-south-jordan-utah.jpg'
+
 const PHONE_DISPLAY = '801-898-0281'
 const PHONE_LINK = '8018980281'
 const PUBLIC_EMAIL = 'ihiutah@gmail.com'
@@ -68,27 +73,26 @@ const rentalSizes = {
 
 const galleryPhotos = [
   {
-    src: '/photos/lawn-care-yard-maintenance.jpg',
+    src: lawnCareYardMaintenance,
     title: 'Lawn Care & Yard Maintenance',
     alt: 'Lawn care and yard maintenance in Salt Lake County'
   },
   {
-    src: '/photos/spring-fall-cleanup-south-jordan-utah.jpg',
+    src: springFallCleanup,
     title: 'Spring & Fall Cleanup',
     alt: 'Spring and fall yard cleanup in South Jordan Utah'
   },
   {
-    src: '/photos/exterior-property-care.jpg',
+    src: exteriorPropertyCare,
     title: 'Exterior Property Care',
     alt: 'Exterior property care cleanup'
   },
   {
-    src: '/photos/landscape-maintenance.jpg',
+    src: landscapeMaintenance,
     title: 'Landscape Maintenance',
     alt: 'Landscape maintenance and cleanup'
   }
 ]
-
 const addOnServices = [
   { key: 'shrubMaintenance', label: 'Shrub trimming / shrub maintenance', price: addOnPrices.shrubMaintenance },
   { key: 'yardCleanup', label: 'Yard cleanup / weeding cleanup', price: addOnPrices.yardCleanup },
