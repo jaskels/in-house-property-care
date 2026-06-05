@@ -25,9 +25,11 @@ export async function handler(event) {
     const subject = `New Property Care Estimate Request - ${safeText(form.contactName)}`
     const details = buildDetails(form, estimate)
 
-    const estimatedTotal = estimate?.reviewRequired
-      ? `${currency(estimate?.total)} - final review required`
-      : currency(estimate?.total)
+    const estimatedTotalAmount = Number(estimate?.total || estimate?.subtotal || 0)
+
+const estimatedTotal = estimate?.reviewRequired
+  ? `${currency(estimatedTotalAmount)} - final review required`
+  : currency(estimatedTotalAmount)
 
     const adminHtml = `
       <div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937">
