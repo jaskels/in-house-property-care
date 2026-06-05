@@ -420,12 +420,11 @@ function EstimatePage() {
   }
 
   function setPlan(plan) {
-    setForm(prev => ({
-      ...prev,
-      selectedPlan: plan,
-      serviceSelections: []
-    }))
-  }
+  setForm(prev => ({
+    ...prev,
+    selectedPlan: plan
+  }))
+}
 
   function toggleService(key) {
     setForm(prev => {
