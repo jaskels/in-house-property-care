@@ -103,7 +103,28 @@ a {
   color: white;
   box-shadow: 0 10px 20px rgba(161, 28, 39, 0.2);
 }
+.topbar-contact {
+  display: grid;
+  gap: 3px;
+  text-align: center;
+  font-weight: 900;
+  color: #17212b;
+}
 
+.topbar-contact a:first-child {
+  color: #a11c27;
+  font-size: 0.98rem;
+}
+
+.topbar-contact a:last-child {
+  color: #475569;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.topbar-contact a:hover {
+  color: #2f6f36;
+}
 .hero-section,
 .section-panel {
   background: rgba(255, 255, 255, 0.92);
@@ -612,7 +633,9 @@ input[type="file"] {
     align-items: flex-start;
     flex-direction: column;
   }
-
+  .topbar-contact {
+    text-align: left;
+  }
   .nav-links {
     width: 100%;
     justify-content: flex-start;
