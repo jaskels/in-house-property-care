@@ -236,20 +236,33 @@ function HomePage({ goToEstimate, goToGallery }) {
       <section className="hero-section">
         <div className="hero-copy">
           <div className="eyebrow">Based in West Jordan • Serving Salt Lake County</div>
-          <h1>Reliable Property Care for Homes, Rentals &amp; Short-Term Stays</h1>
-          <p className="lead">
-            Helping Airbnb hosts, VRBO hosts, rental property owners, and vacation homeowners keep properties clean,
-            maintained, guest-ready, and looking their best.
-          </p>
-          <p className="service-area-line">
-            Based in West Jordan and serving Salt Lake County, with short-term rental and vacation property care available
-            in Park City, Deer Valley, Jeremy Ranch, and select surrounding areas.
-          </p>
+         <h1>Complete Property Maintenance for Homes, Rentals &amp; Short-Term Stays</h1>
 
-          <div className="hero-actions">
-            <button className="button button-primary" type="button" onClick={goToEstimate}>Request Free Estimate</button>
-            <a className="button button-secondary" href={`tel:${PHONE_LINK}`}>Call or Text Now</a>
-          </div>
+<p className="lead">
+  Helping homeowners, Airbnb hosts, VRBO hosts, rental property owners, and vacation homeowners keep properties
+  clean, maintained, guest-ready, and looking their best.
+</p>
+
+<div className="trust-strip">
+  <span>Locally Owned &amp; Operated</span>
+  <span>Licensed &amp; Insured</span>
+  <span>Free Estimates</span>
+  <span>Photo Updates Available</span>
+</div>
+
+<p className="service-area-line">
+  Based in West Jordan and serving Salt Lake County, with short-term rental and vacation property care available
+  in Park City, Deer Valley, Jeremy Ranch, and select surrounding areas.
+</p>
+
+<div className="hero-actions">
+  <button className="button button-primary" type="button" onClick={goToEstimate}>Request Free Estimate</button>
+
+  <div className="phone-display" aria-label={`Call or text ${PHONE_DISPLAY}`}>
+    <span>Call or Text Now</span>
+    <strong>{PHONE_DISPLAY}</strong>
+  </div>
+</div>
         </div>
 
         <div className="hero-card">
