@@ -216,17 +216,22 @@ export default function App() {
 function Header({ goHome, goToEstimate, goToGallery }) {
   return (
     <header className="topbar">
-      <button className="brand-button" type="button" onClick={() => goHome()}>
-        <img src="/logo.png" alt="In House Property Care" className="brand-logo" />
-      </button>
+  <button className="brand-button" type="button" onClick={() => goHome()}>
+    <img src="/logo.png" alt="In House Property Care" className="brand-logo" />
+  </button>
 
-      <nav className="nav-links" aria-label="Main navigation">
-        <button type="button" onClick={() => goHome()}>Home</button>
-        <button type="button" onClick={() => goHome('services')}>Services</button>
-        <button type="button" onClick={goToGallery}>Gallery</button>
-        <button className="nav-cta" type="button" onClick={goToEstimate}>Request Free Estimate</button>
-      </nav>
-    </header>
+  <div className="topbar-contact">
+    <a href={`tel:${PHONE_LINK}`}>Call/Text {PHONE_DISPLAY}</a>
+    <a href={`mailto:${PUBLIC_EMAIL}`}>{PUBLIC_EMAIL}</a>
+  </div>
+
+  <nav className="nav-links" aria-label="Main navigation">
+    <button type="button" onClick={() => goHome()}>Home</button>
+    <button type="button" onClick={() => goHome('services')}>Services</button>
+    <button type="button" onClick={goToGallery}>Gallery</button>
+    <button className="nav-cta" type="button" onClick={goToEstimate}>Request Free Estimate</button>
+  </nav>
+</header>
   )
 }
 
