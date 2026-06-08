@@ -557,7 +557,51 @@ input[type="file"] {
 .mini-contact a:hover {
   color: #a11c27;
 }
+.trust-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 2px 0 4px;
+}
 
+.trust-strip span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 8px 12px;
+  color: #2f6f36;
+  background: #f0fdf4;
+  border: 1px solid rgba(47, 111, 54, 0.18);
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.phone-display {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 48px;
+  padding: 10px 18px;
+  color: #17212b;
+  background: #f8fafc;
+  border: 1px solid rgba(23, 33, 43, 0.12);
+  border-radius: 16px;
+  text-align: center;
+  font-weight: 900;
+}
+
+.phone-display span {
+  color: #64748b;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.phone-display strong {
+  color: #a11c27;
+  font-size: 1.05rem;
+}
 .mobile-estimate-button {
   display: none;
 }
